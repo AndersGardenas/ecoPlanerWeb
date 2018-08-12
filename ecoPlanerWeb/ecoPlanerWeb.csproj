@@ -21,7 +21,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\src\old\" />
+    <Folder Include="Server\Application\" />
+    <Folder Include="Controllers\old\" />
+    <Folder Include="Server\Infrastructure\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Server\Domain\Services\Market\ExternalMarket.cs" />
+    <None Include="Server\Domain\Services\Market\InternalMarket.cs" />
+    <None Include="Server\Domain\model\PopulationTypes\Artisans.cs" />
+    <None Include="Server\Domain\model\PopulationTypes\Demand.cs" />
+    <None Include="Server\Domain\model\PopulationTypes\Factory.cs" />
+    <None Include="Server\Domain\model\PopulationTypes\Farmer.cs" />
+    <None Include="Server\Domain\model\PopulationTypes\Population.cs" />
+    <None Include="Controllers\old\Program.cs" />
+    <None Include="Server\Domain\model\Region Structure\Contry.cs" />
+    <None Include="Server\Domain\model\Region Structure\region.cs" />
+    <None Include="Server\Domain\model\ResourceSet\ExternalTradingResource.cs" />
+    <None Include="Server\Domain\model\ResourceSet\Resource.cs" />
+    <None Include="Server\Domain\model\ResourceSet\Resources.cs" />
+    <None Include="Server\Domain\model\ResourceSet\ResourceType.cs" />
+    <None Include="Server\Domain\model\ResourceSet\ResourceTypes.cs" />
+    <None Include="Server\Domain\model\ResourceSet\TradingResource.cs" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

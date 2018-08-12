@@ -7,7 +7,7 @@ namespace econoomic_planer_X
 {
     class Program
     {
-        static void Main(string[] args)
+        static void StartUp(string[] args)
         {
             Console.WriteLine("Hello World!");
             ResourceTypes.Init();
@@ -23,7 +23,7 @@ namespace econoomic_planer_X
             {
                 Console.WriteLine("------------------------New gen------------------------------------" + iter++);
                 regions.ForEach(re => re.Update());
-                
+
                 regions.ForEach(re => re.CleanUp());
                 System.Threading.Thread.Sleep(10);
             }

@@ -41,7 +41,7 @@ namespace econoomic_planer_X.ResourceSet
 
         public int CompareTo(TradingResource tr)
         {
-            if (Owner.Id.CompareTo(tr.Owner.Id) == 0 && ResourceType.GuId == tr.ResourceType.GuId)
+            if (Owner.Id.CompareTo(tr.Owner.Id) == 0 && ResourceType.Id == tr.ResourceType.Id)
             {
                 return 0;
             }

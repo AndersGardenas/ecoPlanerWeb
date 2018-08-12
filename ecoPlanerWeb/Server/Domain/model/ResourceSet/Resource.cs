@@ -1,10 +1,13 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace econoomic_planer_X.ResourceSet
 {
 
 
     public class Resource
     {
+        [Required]
         public ResourceType ResourceType {get; set; }
         public double Amount {get;set; }
 

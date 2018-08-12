@@ -48,40 +48,40 @@ namespace econoomic_planer_X.Market
 
         private void MergeDublicates(ResourceType resourceType)
         {
-            if (supply[resourceType.GuId].Count == 0)
+            if (supply[resourceType.Id].Count == 0)
             {
                 return;
             }
-            var dict = supply[resourceType.GuId].GroupBy(tr => new {tr.Owner.Id, tr.ResourceType.GuId }).Select(g => g.First()).ToList().ToDictionary(su => new {su.Owner.Id, su.ResourceType.GuId });
-            foreach (var su in supply[resourceType.GuId])
+            var dict = supply[resourceType.Id].GroupBy(tr => new {tr.Owner.Id, tr.ResourceType.Id }).Select(g => g.First()).ToList().ToDictionary(su => new {su.Owner.Id, su.ResourceType.Id });
+            foreach (var su in supply[resourceType.Id])
             {
-                TradingResource tradingResource = dict[new {su.Owner.Id, su.ResourceType.GuId }];
+                TradingResource tradingResource = dict[new {su.Owner.Id, su.ResourceType.Id }];
                 if (tradingResource.Id.CompareTo(su.Id) != 0 && tradingResource.CompareTo(su) == 0)
                 {
                     tradingResource.Add(su);
                 }
             }
-            supply[resourceType.GuId] = dict.Values.ToList();
+            supply[resourceType.Id] = dict.Values.ToList();
         }
 
         private void ComputeResourceRatio(ResourceType resourceType, out double supplyAmount, out double demandAmount)
         {
-            supplyAmount = supply[resourceType.GuId].Sum(su => su.Amount);
+            supplyAmount = supply[resourceType.Id].Sum(su => su.Amount);
             demandAmount = demand.GetAmount(resourceType);
-            resourceRatio[resourceType.GuId] = demandAmount > 0 ? supplyAmount / demandAmount  : double.PositiveInfinity;
+            resourceRatio[resourceType.Id] = demandAmount > 0 ? supplyAmount / demandAmount  : double.PositiveInfinity;
         }
 
         private void ComputeExternalTrade(ResourceType resourceType)
         {
 
-            if (resourceRatio[resourceType.GuId] > 1)
+            if (resourceRatio[resourceType.Id] > 1)
             {
                 double externalPrice = externalMarket.GetBestCost(resourceType, out ExternalMarket destination);
                 
-                double priceRatio = externalPrice / resourcesPrice[resourceType.GuId];
+                double priceRatio = externalPrice / resourcesPrice[resourceType.Id];
                 if (priceRatio > externalTradingThreshold)
                 {
-                    externalMarket.StartTrade(supply[resourceType.GuId],((resourceRatio[resourceType.GuId]-1)/ resourceRatio[resourceType.GuId]),destination);
+                    externalMarket.StartTrade(supply[resourceType.Id],((resourceRatio[resourceType.Id]-1)/ resourceRatio[resourceType.Id]),destination);
                 }
             }     
         }
@@ -91,17 +91,17 @@ namespace econoomic_planer_X.Market
         {
             foreach(ResourceType resourceType in ResourceTypes.resourceTypes)
             {
-                double ratio = resourceRatio[resourceType.GuId];
+                double ratio = resourceRatio[resourceType.Id];
                 double buyRatio = Math.Min(1,ratio);
                 double sellRatio = Math.Min(1,1/ratio);
-                double price = resourcesPrice[resourceType.GuId];
+                double price = resourcesPrice[resourceType.Id];
 
                 foreach(Population pop in populations)
                 {
                     pop.BuyAmount(buyRatio,price,resourceType);
                 }
-                supply[resourceType.GuId].ForEach(su => su.Trade(sellRatio,price));
-                supply[resourceType.GuId].RemoveAll(su => su.Empty());
+                supply[resourceType.Id].ForEach(su => su.Trade(sellRatio,price));
+                supply[resourceType.Id].RemoveAll(su => su.Empty());
 
             }
         }
@@ -109,10 +109,10 @@ namespace econoomic_planer_X.Market
         public void UpdatedPrices()
         {
             foreach(ResourceType resourceType in ResourceTypes.resourceTypes){
-                 resourcesPrice[resourceType.GuId] *=  1 + (Math.Max(Math.Min(1/resourceRatio[resourceType.GuId] - 1,priceSlownes),-priceSlownes))/100;
+                 resourcesPrice[resourceType.Id] *=  1 + (Math.Max(Math.Min(1/resourceRatio[resourceType.Id] - 1,priceSlownes),-priceSlownes))/100;
 
                  Console.Out.WriteLine(resourceType.Name);
-                 Console.Out.WriteLine("price: " +  resourcesPrice[resourceType.GuId]);
+                 Console.Out.WriteLine("price: " +  resourcesPrice[resourceType.Id]);
             }
         }
 
@@ -126,7 +126,7 @@ namespace econoomic_planer_X.Market
             foreach(Population population in populations)
             {
                 population.Produce();
-                supply[population.producingType.GuId].Add(new TradingResource(population,population.producingType, population.SellingAmount()));
+                supply[population.producingType.Id].Add(new TradingResource(population,population.producingType, population.SellingAmount()));
             }
         }
 
@@ -146,13 +146,13 @@ namespace econoomic_planer_X.Market
 
         public double GetPrice(ResourceType resourceType,double amount)
         {
-            return resourcesPrice[resourceType.GuId] * amount;
+            return resourcesPrice[resourceType.Id] * amount;
         }
        
 
         public double GetPrice(ResourceType resourceType)
         {
-             return resourcesPrice[resourceType.GuId];
+             return resourcesPrice[resourceType.Id];
         }
 
         public void AddDemand(Resources resources)

@@ -8,6 +8,7 @@ namespace econoomic_planer_X.ResourceSet
 {
     public class ResourceTypes  
     {
+
         public static List<ResourceType> resourceTypes = new List<ResourceType>();
 
         public static void Init()

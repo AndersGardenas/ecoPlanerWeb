@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
 
 namespace econoomic_planer_X.ResourceSet
 {
     public class Resources  : IEnumerable
     {
+        [Key]
+        String Guid ;
+
         Resource[] resources =  new Resource[Resource.ResourceTypeSize()];
 
         public Resources()
         {
            foreach(ResourceType resourceType in ResourceTypes.resourceTypes)
             {
-                resources[resourceType.GuId] = new Resource(resourceType, 0);
+                resources[resourceType.Id] = new Resource(resourceType, 0);
             }
         }
 
@@ -23,12 +24,12 @@ namespace econoomic_planer_X.ResourceSet
 
         public double GetAmount(ResourceType resourceType)
         {
-            return resources[resourceType.GuId].Amount;
+            return resources[resourceType.Id].Amount;
         }
 
         public void Adjust(Resource resource)
         {
-            resources[resource.ResourceType.GuId].Adjust(resource.Amount);
+            resources[resource.ResourceType.Id].Adjust(resource.Amount);
         }
     
 
@@ -44,13 +45,13 @@ namespace econoomic_planer_X.ResourceSet
 
         public Resource GetResource(ResourceType producingType)
         {
-            return resources[producingType.GuId];
+            return resources[producingType.Id];
         }
 
 
         public void SetResource(Resource resourceDemand)
         {
-            resources[resourceDemand.ResourceType.GuId].Amount = resourceDemand.Amount;
+            resources[resourceDemand.ResourceType.Id].Amount = resourceDemand.Amount;
         }
 
         public void Reset()

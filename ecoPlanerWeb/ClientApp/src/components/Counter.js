@@ -12,7 +12,9 @@ const Counter = props => (
     <p>Current count: <strong>{props.count}</strong></p>
 
     <button onClick={props.increment}>Increment</button>
+
   </div>
+
 );
 
 export default connect(

@@ -62,7 +62,7 @@ namespace econoomic_planer_X.Market
                 tradingResounce.TransportADay(); 
                 if(tradingResounce.AtDestination()){
                     if(tradingResounce.Destination == this){
-                        TradingResources[tradingResounce.ResourceType.GuId].Add(tradingResounce);
+                        TradingResources[tradingResounce.ResourceType.Id].Add(tradingResounce);
                     }
                    else
                     {

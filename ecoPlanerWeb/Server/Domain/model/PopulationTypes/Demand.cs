@@ -23,7 +23,7 @@ namespace econoomic_planer_X.PopulationTypes
 
         public double GetNeedAdjusted(ResourceType resourceType)
         {
-            return LifeValues[resourceType.GuId] / totalLifleValue;
+            return LifeValues[resourceType.Id] / totalLifleValue;
         }
 
 
@@ -34,14 +34,14 @@ namespace econoomic_planer_X.PopulationTypes
 
         public double GetNeed(ResourceType resourceType)
         {
-            return Needs[resourceType.GuId];
+            return Needs[resourceType.Id];
         }
 
 
         public void SetDemand(ResourceType resourceType,double amountNeeded, double lifeValue)
         {
-            Needs[resourceType.GuId] = amountNeeded;
-            LifeValues[resourceType.GuId] = lifeValue;
+            Needs[resourceType.Id] = amountNeeded;
+            LifeValues[resourceType.Id] = lifeValue;
         }
 
         public double TotalLifleValue()
@@ -60,7 +60,7 @@ namespace econoomic_planer_X.PopulationTypes
                 {
                     continue;
                 }
-                lifePriceRatioMap[resourceType] = LifeValues[resourceType.GuId] / market.GetPrice(resourceType);
+                lifePriceRatioMap[resourceType] = LifeValues[resourceType.Id] / market.GetPrice(resourceType);
             }
             ComputeWhatToBuy(market, population, lifePriceRatioMap);
             market.AddDemand(resourceDemand);
