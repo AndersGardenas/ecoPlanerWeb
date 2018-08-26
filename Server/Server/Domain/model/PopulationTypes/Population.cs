@@ -2,7 +2,6 @@
 using econoomic_planer_X.PopulationTypes;
 using econoomic_planer_X.ResourceSet;
 using System;
-using System.Collections.Generic;
 
 namespace econoomic_planer_X
 {
@@ -10,20 +9,22 @@ namespace econoomic_planer_X
     {
 
         public ResourceType producingType;
-        public Demand demand = new Demand();
         public double money;
+        public Demand demand;
         private const int startMoney = 5;
         double selling = 0;
-        public String Id;
+        public Guid ID { get; set; }
 
 
-        
+        public Population(){}
+
         public Population(int Amount, ResourceType producingType)
         {
+            demand = new Demand();
+
             SetPopLevel(Amount);
             money = Amount * startMoney;
             this.producingType = producingType;
-            Id = Guid.NewGuid().ToString("N");
         }
 
         private double popLevel;
@@ -36,12 +37,12 @@ namespace econoomic_planer_X
         {
             popLevel = value;
         }
-        public double FoodLevel{get; set;}
+        public double FoodLevel { get; set; }
         public Resources stock = new Resources();
 
         public void UpdateDemand(InternalMarket market)
         {
-            demand.UpdateDemand(market,this);
+            demand.UpdateDemand(market, this);
         }
 
         public bool AffordTransport()
@@ -55,7 +56,7 @@ namespace econoomic_planer_X
         }
 
 
-        public virtual double getEfficensy()
+        public virtual double GetEfficensy()
         {
             return 1.05;
         }
@@ -63,14 +64,15 @@ namespace econoomic_planer_X
 
         public double GetSallery(InternalMarket market)
         {
-            return getEfficensy() * market.GetPrice(producingType);
+            return GetEfficensy() * market.GetPrice(producingType);
         }
 
         public void Consume()
         {
-             FoodLevel = 0;
-  
-            foreach(ResourceType resourceType in ResourceTypes.resourceTypes){
+            FoodLevel = 0;
+
+            foreach (ResourceType resourceType in ResourceTypes.resourceTypes)
+            {
 
                 double neededAmount = demand.GetDemand(resourceType);
                 if (neededAmount == 0)
@@ -79,16 +81,16 @@ namespace econoomic_planer_X
                 }
 
                 double amountInStock = stock.GetAmount(resourceType);
- 
-                double ratio = Math.Min(1,amountInStock/neededAmount);
-                FoodLevel += ratio * demand.GetNeedAdjusted(resourceType);
-                stock.Adjust(new Resource(resourceType,-ratio*neededAmount));
+
+                double ratio = Math.Min(1, amountInStock / neededAmount);
+                FoodLevel += ratio * demand.GetLifeValueAdjusted(resourceType);
+                stock.Adjust(new Resource(resourceType, -ratio * neededAmount));
             }
         }
 
         internal void Print()
         {
-                Console.Out.WriteLine("Poplevel is: " + GetPopLevel() + " Money level is: " + money);
+            Console.Out.WriteLine("Poplevel is: " + GetPopLevel() + " Money level is: " + money);
         }
 
         public void ChangePop(double newPop)
@@ -100,7 +102,7 @@ namespace econoomic_planer_X
         public double UpdatePopulation()
         {
             Consume();
-            double popChange= GetPopLevel() *  (FoodLevel-0.5)/100;
+            double popChange = GetPopLevel() * (FoodLevel - 0.5) / 100;
             if (popChange < 0)
             {
                 ChangePop(popChange);
@@ -114,26 +116,26 @@ namespace econoomic_planer_X
             return selling;
         }
 
-        
+
         public Resource Selling()
         {
             double stockAmount = stock.GetAmount(producingType);
-            stock.SetResource(new Resource(producingType,0));
-            return new Resource(producingType,stockAmount);
+            stock.SetResource(new Resource(producingType, 0));
+            return new Resource(producingType, stockAmount);
         }
 
 
         public void Produce()
         {
-            double produce = GetPopLevel() * getEfficensy();
-            Resource resource = new Resource(producingType,produce);
+            double produce = GetPopLevel() * GetEfficensy();
+            Resource resource = new Resource(producingType, produce);
             stock.Adjust(resource);
             selling = stock.GetAmount(producingType);
-        }    
+        }
 
         public double BuyAmount(double ratio, double price, ResourceType resourceType)
         {
-            double buyAmount = demand.GetDemand(resourceType)* ratio;
+            double buyAmount = demand.GetDemand(resourceType) * ratio;
             stock.Adjust(new Resource(resourceType, buyAmount));
             money -= buyAmount * price;
             return demand.GetDemand(resourceType);

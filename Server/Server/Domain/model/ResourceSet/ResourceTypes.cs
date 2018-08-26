@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace econoomic_planer_X.ResourceSet
 {
     public class ResourceTypes  
     {
-
         public static List<ResourceType> resourceTypes = new List<ResourceType>();
 
         public static void Init()
@@ -17,16 +14,16 @@ namespace econoomic_planer_X.ResourceSet
             resourceTypes.Add(new ResourceType("Cloth"));
         }
 
-        public static int Amount()
+        public static int TotalAmount()
         {
-            return ResourceType.Amount;
+            return ResourceType.totalAmount;
         }
-        public static void AddResourceType(String name)
+        public static void AddResourceType(string name)
         {
             resourceTypes.Add(new ResourceType(name));
         }
 
-        public static ResourceType GetResourceType(String name)
+        public static ResourceType GetResourceType(string name)
         {
             return resourceTypes.First(re => re.Name.CompareTo(name) == 0);
         }

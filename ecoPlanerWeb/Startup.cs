@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Server.Server.Infrastructure;
 
 namespace ecoPlanerWeb
 {
@@ -26,6 +27,11 @@ namespace ecoPlanerWeb
             {
                 configuration.RootPath = "ClientApp/build";
             });
+
+            using (var context = new EcoContext())
+            {
+                context.Database.EnsureCreated();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
