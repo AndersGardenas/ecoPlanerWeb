@@ -62,5 +62,10 @@ namespace econoomic_planer_X.ResourceSet
         {
             return CompareTo(other) == 0;
         }
+
+        internal ExternatlTradingResource SplitExternal(double ratio, object getExternalMarket, double v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

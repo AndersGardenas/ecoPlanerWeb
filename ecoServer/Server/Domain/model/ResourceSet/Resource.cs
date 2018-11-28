@@ -15,6 +15,7 @@ namespace econoomic_planer_X.ResourceSet
 
         public Resource(ResourceType ResourceType, double Amount)
         {
+            Id = Guid.NewGuid();
             this.ResourceType = ResourceType;
             this.Amount = Amount;
         }

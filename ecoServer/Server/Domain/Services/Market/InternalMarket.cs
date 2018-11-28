@@ -1,4 +1,5 @@
 ﻿using econoomic_planer_X.ResourceSet;
+using ecoServer.Server.Domain.Services.Market;
 using Server.Server.Domain.model.ResourceSet;
 using System;
 using System.Collections.Generic;
@@ -18,18 +19,20 @@ namespace econoomic_planer_X.Market
         private const double ExternalTradingThreshold = 1;
         private const int PriceSlownes = 10;
 
-        //public InternalMarket() { }
-
-
         public InternalMarket() {
             ResourceData = new List<ResourceData>();
             Supply = new List<TradingResources>();
+            for (int i = 0; i < ResourceType.totalAmount; i++)
+            {
+                ResourceData.Add(new ResourceData());
+                Supply.Add(new TradingResources());
+            }
             Demand = new Resources();
         }
 
         public void ComputeNewStock(ExternalMarket externalMarket) {
             foreach (ResourceType resourceType in ResourceTypes.resourceTypes) {
-                ComputeResourceRatio(resourceType, out double supplyAmount, out double demandAmount);
+                ComputeResourceRatio(resourceType);
                 ComputeExternalTrade(resourceType, externalMarket);
             }
             externalMarket.UpdateTrade(Supply);
@@ -37,7 +40,7 @@ namespace econoomic_planer_X.Market
             foreach (ResourceType resourceType in ResourceTypes.resourceTypes) {
                 MergeDublicates(resourceType);
 
-                ComputeResourceRatio(resourceType, out double supplyAmount, out double demandAmount);
+                ComputeResourceRatio(resourceType);
             }
         }
 
@@ -55,22 +58,19 @@ namespace econoomic_planer_X.Market
             Supply[resourceType.Id].tradingResources = dict.Values.ToList();
         }
 
-        private void ComputeResourceRatio(ResourceType resourceType, out double supplyAmount, out double demandAmount) {
-            supplyAmount = Supply[resourceType.Id].tradingResources.Sum(su => su.Amount);
-            demandAmount = Demand.GetAmount(resourceType);
+        private void ComputeResourceRatio(ResourceType resourceType) {
+            double supplyAmount = Supply[resourceType.Id].tradingResources.Sum(su => su.Amount);
+            double demandAmount = Demand.GetAmount(resourceType);
             ResourceData[resourceType.Id].ResourceRatio = demandAmount > 0 ? supplyAmount / demandAmount : double.PositiveInfinity;
         }
 
         private void ComputeExternalTrade(ResourceType resourceType, ExternalMarket externalMarket) {
             var resourceRatio = ResourceData[resourceType.Id].ResourceRatio;
-            if (resourceRatio > 1) {
-                double externalPrice = externalMarket.GetBestCost(resourceType, out ExternalMarket destination);
+            double externalPrice = externalMarket.GetBestCost(resourceType, out TradeRegion destination);
 
-                double priceRatio = externalPrice / ResourceData[resourceType.Id].ResourcesPrice;
-                if (priceRatio > ExternalTradingThreshold) {
-                    externalMarket.StartTrade(Supply[resourceType.Id].tradingResources, (resourceRatio - 1) / resourceRatio, destination);
-                }
-            }
+            double priceRatio = externalPrice / ResourceData[resourceType.Id].ResourcesPrice;
+            externalMarket.IncreaseTradeWith(resourceType,destination,priceRatio);
+            externalMarket.DoExternalTrade(Supply[resourceType.Id].tradingResources,resourceType);
         }
 
 

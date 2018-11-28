@@ -11,6 +11,7 @@ namespace ecoPlanerWeb
     {
         public static void Main(string[] args)
         {
+            Init();
         }
 
 
@@ -24,17 +25,17 @@ namespace ecoPlanerWeb
                 op,
                 op2
             };
-            op.Connect(op2);
+            op.ConnectNeighbour(op2);
 
-             //int iter = 0;
-            //while (true)
-            //{
-            //    Console.WriteLine("------------------------New gen------------------------------------" + iter++);
-            //    regions.ForEach(re => re.Update());
+            int iter = 0;
+            while (true)
+            {
+                Console.WriteLine("------------------------New gen------------------------------------" + iter++);
+                regions.ForEach(re => re.Update());
 
-            //    regions.ForEach(re => re.CleanUp());
-            //    System.Threading.Thread.Sleep(10);
-            //}
+                regions.ForEach(re => re.CleanUp());
+                System.Threading.Thread.Sleep(10);
+            }
         }
     }
 }

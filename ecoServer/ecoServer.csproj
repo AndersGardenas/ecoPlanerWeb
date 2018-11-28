@@ -7,6 +7,12 @@
 
   <ItemGroup>
     <Folder Include="Server\Application\" />
+    <Folder Include="Server\Domain\model\ResourceSet\ExternalTrade\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
   </ItemGroup>
 
 </Project>

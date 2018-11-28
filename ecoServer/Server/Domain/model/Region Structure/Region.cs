@@ -14,7 +14,7 @@ namespace econoomic_planer_X
         private InternalMarket internalMarket;
         private ExternalMarket externalMarket;
         public virtual List<Population> Populations { get; set; }
-        public virtual List<Region> Negbours { get; set; }
+        public virtual List<Region> Negbours { get;}
 
 
         public Region() {
@@ -38,10 +38,14 @@ namespace econoomic_planer_X
             }
         }
 
+        private void AddNeighbour(Region neighbour){
+            Negbours.Add(neighbour);
+            externalMarket.AddNeighbour(neighbour);
+        }
 
-        internal void Connect(Region op2) {
-            Negbours.Add(op2);
-            op2.Negbours.Add(this);
+        public void ConnectNeighbour(Region neighbour) {
+            AddNeighbour(neighbour);
+            neighbour.AddNeighbour(this);
         }
 
 

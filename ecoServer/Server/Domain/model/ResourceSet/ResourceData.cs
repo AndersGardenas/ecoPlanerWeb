@@ -10,7 +10,7 @@ namespace Server.Server.Domain.model.ResourceSet
 
         public virtual double ResourceRatio { get; set; }
 
-        ResourceData()
+        public ResourceData()
         {
             ResourcesPrice = 1;
         }

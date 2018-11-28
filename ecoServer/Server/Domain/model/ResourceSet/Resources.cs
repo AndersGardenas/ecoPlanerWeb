@@ -49,7 +49,12 @@ namespace econoomic_planer_X.ResourceSet
 
         public void SetResource(Resource resourceDemand)
         {
-            resources[resourceDemand.ResourceType.Id].Amount = resourceDemand.Amount;
+            SetResource(resourceDemand.ResourceType,resourceDemand.Amount);
+        }
+
+        public void SetResource(ResourceType resourceType, double amount)
+        {
+            resources[resourceType.Id].Amount = amount;
         }
 
         public void Reset()

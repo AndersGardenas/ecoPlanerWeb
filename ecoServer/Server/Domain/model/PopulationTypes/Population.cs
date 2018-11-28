@@ -21,7 +21,7 @@ namespace econoomic_planer_X
         public Population(int Amount, ResourceType producingType)
         {
             demand = new Demand();
-
+            ID = Guid.NewGuid();
             SetPopLevel(Amount);
             money = Amount * startMoney;
             this.producingType = producingType;
