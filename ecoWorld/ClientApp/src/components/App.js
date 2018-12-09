@@ -1,17 +1,18 @@
-import React, { createRef, Component } from 'react';
-import { render } from 'react-dom';
+import React, { Component } from 'react';
 import { Map, TileLayer, GeoJSON } from 'react-leaflet';
-import Control from 'react-leaflet-control';
-import geojson from 'json-loader!./custom.geojson';
+import ContryInfo from './ContryInfo.js';
+
 const mapCenter = [39.9528, -75.1638];
-const zoomLevel = 2;
-const minZoomLevel = 2;
-const maxZoomLevel = 2;
+const zoomLevel = 3;
+const geojson = require('../custom.geo.json');
+const maxScrol = 8;
+const minScrol = 2;
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = { currentZoomLevel: zoomLevel };
+        this.state = { contry: null };
         this.handleUpPanClick = this.handleUpPanClick.bind(this);
         this.handleRightPanClick = this.handleRightPanClick.bind(this);
         this.handleLeftPanClick = this.handleLeftPanClick.bind(this);
@@ -29,6 +30,10 @@ export default class App extends Component {
     }
 
     handleZoomLevelChange(newZoomLevel) {
+        if (newZoomLevel > maxScrol || newZoomLevel < minScrol) {
+            return;
+        }
+         window.console.log(newZoomLevel);
         this.setState({ currentZoomLevel: newZoomLevel });
     }
 
@@ -57,17 +62,14 @@ export default class App extends Component {
     }
 
 
-
-
     log(e) {
         var point = [e.latlng.lng, e.latlng.lat];
         var features = geojson.features.length;
-        window.console.log(geojson);
         for (var i = 0; i < features; i++) {
             var feature = geojson.features[i];
 
             if (inside(point, feature.geometry.coordinates) == true) {
-                window.console.log('Found it ' + feature.properties.admin);
+                this.setState({ contry: feature.properties.admin });
                 break;
             }
         }
@@ -75,28 +77,24 @@ export default class App extends Component {
     }
 
 
-
-
     render() {
-        window.console.log('this.state.currentZoomLevel ->', this.state.currentZoomLevel);
         return (
             <div>
+                <ContryInfo contry={this.state.contry} />
                 <Map
                     ref={m => { this.leafletMap = m; }}
                     center={mapCenter}
                     zoom={zoomLevel}
                     onLocationfound={this.handleLocationFound}
                     onClick={this.log}
-
                 >
-                    <TileLayer
-                        attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                     />
-                    <GeoJSON data={geojson}
+                    <GeoJSON
+                        data={geojson}
                     />
                 </Map>
-
             </div>
         );
     }
@@ -105,11 +103,11 @@ export default class App extends Component {
 function inside(point, area) {
     var numA = area.length;
     for (var iter = 0; iter < numA; iter++) {
-         var vs; 
+        var vs;
         if (numA > 1) {
-           vs = area[iter][0];
+            vs = area[iter][0];
         } else {
-           vs = area[0];
+            vs = area[0];
         }
         // ray-casting algorithm based on
         // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
@@ -131,8 +129,3 @@ function inside(point, area) {
     }
     return false;
 };
-
-render(
-    <App />,
-    document.getElementById('mount')
-);

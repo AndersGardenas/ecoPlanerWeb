@@ -27,8 +27,6 @@
   <ItemGroup>
     <Content Include="ClientApp\src\appsettings.Development.json" />
     <Content Include="ClientApp\src\appsettings.json" />
-    <Content Include="ClientApp\src\package-lock.json" />
-    <Content Include="ClientApp\src\package.json" />
   </ItemGroup>
 
   <ItemGroup>
