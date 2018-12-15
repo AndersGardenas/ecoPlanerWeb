@@ -55,6 +55,13 @@ namespace ecoPlanerWeb.Controllers
         };
 
         [HttpGet("[action]")]
+        public String getContry(int index) {
+            var rng = new Random();
+            return context.Population;
+        }
+
+
+        [HttpGet("[action]")]
         public IEnumerable<WeatherForecast> WeatherForecasts(int startDateIndex) {
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast {

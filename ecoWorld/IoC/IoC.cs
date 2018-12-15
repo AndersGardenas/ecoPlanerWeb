@@ -5,7 +5,7 @@ using Server.Server.Infrastructure;
 
 namespace ecoPlanerWeb.IoC
 {
-    public static class IoC
+    public static class IoC 
     {
         public static EcoContext EcoContext => IoCContainer.ServiceProvider.GetService<EcoContext>();
     }
