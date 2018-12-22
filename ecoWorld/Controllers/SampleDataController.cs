@@ -57,7 +57,7 @@ namespace ecoPlanerWeb.Controllers
         [HttpGet("[action]")]
         public String getContry(int index) {
             var rng = new Random();
-            return context.Population;
+            return context.Population.First(p => true).GetPopLevel().ToString();
         }
 
 
