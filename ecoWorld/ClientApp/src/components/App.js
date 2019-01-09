@@ -73,7 +73,9 @@ export default class App extends Component {
                 break;
             }
         }
-        window.console.log("Lat, Lon : " + e.latlng);
+
+        var temp = requestGetContry(1);
+        window.console.log("Contry has ---> " + temp);
     }
 
 
@@ -128,4 +130,15 @@ function inside(point, area) {
         }
     }
     return false;
+};
+
+async function  requestGetContry(index){    
+
+  //  dispatch({ type: requestWeatherForecastsType, index });
+
+    const url = `api/SampleData/getContry?index=${index}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+   // dispatch({ type: receiveWeatherForecastsType, index, data });
 };

@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 /ecoWorld/Resources/world.geo.json-master
+/ecoWorld/ClientApp/node_modules_2/.bin
