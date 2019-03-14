@@ -2,8 +2,11 @@
 using econoomic_planer_X.Market;
 using econoomic_planer_X.PopulationTypes;
 using econoomic_planer_X.ResourceSet;
+using PolygonIntersection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Windows;
 
 namespace econoomic_planer_X
 {
@@ -11,66 +14,83 @@ namespace econoomic_planer_X
     {
         public Guid ID { get; set; }
 
-        private InternalMarket internalMarket;
-        private ExternalMarket externalMarket;
+        public InternalMarket InternalMarket { get; set; }
+        public ExternalMarket externalMarket { get; set; }
         public virtual List<Population> Populations { get; set; }
-        public virtual List<Region> Negbours { get;}
+        public virtual List<NeighbourRegion> Negbours { get; }
+        private List<Point> Polygon;
+        public double CenterX { get; set; }
+        public double CenterY { get; set; }
+
+        [ForeignKey("Standard")]
+        public Guid ContryID { get; set; }
 
 
-        public Region() {
-            Negbours = new List<Region>();
-            internalMarket = new InternalMarket();
+        public Region()
+        {
+            Negbours = new List<NeighbourRegion>();
+            InternalMarket = new InternalMarket();
             externalMarket = new ExternalMarket(this, Negbours);
             Populations = new List<Population>();
         }
 
+        public Region(bool fruits, int population, List<Point> polygon, Point center): this()
+        {
+            this.Polygon = polygon;
+            CenterX = center.X;
+            CenterY = center.Y;
 
-        public Region(bool fruits) {
-            Negbours = new List<Region>();
-            internalMarket = new InternalMarket();
-            externalMarket = new ExternalMarket(this, Negbours);
-            Populations = new List<Population>();
-
-            if (fruits) {
-                Populations.Add(new Farmer(10000, ResourceTypes.GetResourceType("Fruit")));
-            } else {
-                Populations.Add(new Farmer(10000, ResourceTypes.GetResourceType("Cloth")));
+            if (fruits)
+            {
+                Populations.Add(new Farmer(population, ResourceTypes.GetResourceType("Fruit")));
+            }
+            else
+            {
+                Populations.Add(new Farmer(population, ResourceTypes.GetResourceType("Cloth")));
             }
         }
-
-        private void AddNeighbour(Region neighbour){
-            Negbours.Add(neighbour);
+        private void AddNeighbour(Region neighbour)
+        {
+            Negbours.Add(new NeighbourRegion(this,neighbour));
             externalMarket.AddNeighbour(neighbour);
         }
 
-        public void ConnectNeighbour(Region neighbour) {
+        public void ConnectNeighbour(Region neighbour)
+        {
             AddNeighbour(neighbour);
             neighbour.AddNeighbour(this);
         }
 
+        public List<Point> GetPolygon()
+        {
+            return Polygon;
+        }
 
-
-        public double GetTransportCost() {
+        public double GetTransportCost()
+        {
             return GetTransportTime() * 0;
         }
 
-        public double GetTransportTime() {
+        public double GetTransportTime()
+        {
             return 1;
         }
 
-        public double GetResorceCost(ResourceType resource) {
-            return internalMarket.GetPrice(resource);
+        public double GetResorceCost(ResourceType resource)
+        {
+            return InternalMarket.GetPrice(resource);
         }
 
-
-
-        public Population GetBestPayed() {
+        public Population GetBestPayed()
+        {
             double bestSallery = -1;
             Population bestPop = null;
 
-            foreach (Population pop in Populations) {
-                double sallery = pop.GetSallery(internalMarket);
-                if (sallery > bestSallery) {
+            foreach (Population pop in Populations)
+            {
+                double sallery = pop.GetSallery(InternalMarket);
+                if (sallery > bestSallery)
+                {
                     bestPop = pop;
                     bestSallery = sallery;
                 }
@@ -78,39 +98,44 @@ namespace econoomic_planer_X
             return bestPop;
         }
 
-        public ExternalMarket GetExternalMarket() {
+        public ExternalMarket GetExternalMarket()
+        {
             return externalMarket;
         }
 
 
-        public void UpdatePopulation() {
+        public void UpdatePopulation()
+        {
             double newPop = 0;
-            foreach (Population pop in Populations) {
+            foreach (Population pop in Populations)
+            {
                 newPop += pop.UpdatePopulation();
             }
             Population bestPop = GetBestPayed();
             bestPop.ChangePop(newPop);
         }
 
-        public void Update() {
-            internalMarket.UpdateMarket(Populations);
+        public void Update()
+        {
+            InternalMarket.UpdateMarket(Populations);
 
-            internalMarket.ComputeNewStock(externalMarket);
-            internalMarket.DoTrade(Populations);
+            InternalMarket.ComputeNewStock(externalMarket);
+            InternalMarket.DoTrade(Populations);
 
             UpdatePopulation();
 
 
         }
 
-        public void CleanUp() {
+        public void CleanUp()
+        {
             externalMarket.FinilizeTrades();
-            internalMarket.CleanUp();
-            foreach (Population pop in Populations) {
+            InternalMarket.CleanUp();
+            foreach (Population pop in Populations)
+            {
                 pop.Print();
             }
         }
-
     }
 }
 

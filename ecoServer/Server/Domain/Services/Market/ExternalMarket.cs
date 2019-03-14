@@ -2,6 +2,7 @@
 using ecoServer.Server.Domain.Services.Market;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace econoomic_planer_X.Market
 {
@@ -9,12 +10,13 @@ namespace econoomic_planer_X.Market
     {
 
         public Guid Id { get; set; }
+        [ForeignKey("Standard")]
+
         public Region Ownregion { get; set; }
 
         public virtual List<TradeRegion> TradeRegions { get; set; }
         public virtual List<ExternatlTradingResource> ExternatlTradingResources { get; set; }
         public virtual List<ExternatlTradingResource> NewExternatlTradingResources { get; set; }
-
 
         public ExternalMarket()
         {
@@ -22,14 +24,15 @@ namespace econoomic_planer_X.Market
             NewExternatlTradingResources = new List<ExternatlTradingResource>();
         }
 
-        public ExternalMarket(Region Ownregion, List<Region> BorderRegions)
+        public ExternalMarket(Region Ownregion, List<NeighbourRegion> BorderRegions)
         {
             ExternatlTradingResources = new List<ExternatlTradingResource>();
             NewExternatlTradingResources = new List<ExternatlTradingResource>();
             TradeRegions = new List<TradeRegion>();
-            foreach (Region region in BorderRegions)
+            foreach (NeighbourRegion region in BorderRegions)
             {
-                TradeRegions.Add(new TradeRegion(region));
+                Region tempRegion = region.Region1  == Ownregion ? region.Region2 : region.Region1;
+                TradeRegions.Add(new TradeRegion(tempRegion));
             }
             this.Ownregion = Ownregion;
         }
@@ -90,7 +93,7 @@ namespace econoomic_planer_X.Market
         {
             foreach (TradeRegion tradeRegion in TradeRegions)
             {
-                if (priceRatio > 1 && destination.Id == tradeRegion.Id)
+                if (priceRatio > 1 && destination.ID == tradeRegion.ID)
                 {
                     tradeRegion.IncreaseTrade(resourceType);
                 }

@@ -8,8 +8,18 @@ namespace econoomic_planer_X
     {
         public virtual List<Region> Regions { get; set; }
         public Guid ID { get; set; }
+        public string Name {get; set; }
 
         public Contry(){}
+        public Contry(string name) {
+            Regions = new List<Region>();
+            this.Name = name;
+        }
+
+        public void AddRegion(Region region)
+        {
+            Regions.Add(region);
+        }
 
         void Update()
         {

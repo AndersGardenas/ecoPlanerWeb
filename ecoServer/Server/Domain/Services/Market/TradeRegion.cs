@@ -1,16 +1,13 @@
 ﻿using econoomic_planer_X;
 using econoomic_planer_X.Market;
 using econoomic_planer_X.ResourceSet;
-using Server.Server.Data;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ecoServer.Server.Domain.Services.Market
 {
     public class TradeRegion
     {
-        public Guid Id;
+        public Guid ID { get; set; }
         public Region Region {get; set;}
         private Resources transportAmount;
         private readonly double tradeChange = 0.05;

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Map, TileLayer, GeoJSON } from 'react-leaflet';
 import ContryInfo from './ContryInfo.js';
+import axios from 'axios';
+
 
 const mapCenter = [39.9528, -75.1638];
 const zoomLevel = 3;
@@ -68,14 +70,13 @@ export default class App extends Component {
         for (var i = 0; i < features; i++) {
             var feature = geojson.features[i];
 
-            if (inside(point, feature.geometry.coordinates) == true) {
+            if (inside(point, feature.geometry.coordinates) === true) {
                 this.setState({ contry: feature.properties.admin });
+                requestGetContry(this.state.contry);
+
                 break;
             }
         }
-
-        var temp = requestGetContry(1);
-        window.console.log("Contry has ---> " + temp);
     }
 
 
@@ -119,7 +120,7 @@ function inside(point, area) {
         for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
             var xi = vs[i][0], yi = vs[i][1];
             var xj = vs[j][0], yj = vs[j][1];
-            var intersect = ((yi > y) != (yj > y))
+            var intersect = (yi > y) !== (yj > y)
                 && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
             if (intersect) {
                 inside = !inside;
@@ -134,11 +135,10 @@ function inside(point, area) {
 
 async function  requestGetContry(index){    
 
-  //  dispatch({ type: requestWeatherForecastsType, index });
 
-    const url = `api/SampleData/getContry?index=${index}`;
-    const response = await fetch(url);
-    const data = await response.json();
 
-   // dispatch({ type: receiveWeatherForecastsType, index, data });
+    const url = `api/SampleData/getContry?name=${index}`
+    axios(url).then(
+        response => console.log('Contry has --->', response.data)
+    );
 };

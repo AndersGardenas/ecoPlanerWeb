@@ -2,6 +2,7 @@
 using econoomic_planer_X.PopulationTypes;
 using econoomic_planer_X.ResourceSet;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace econoomic_planer_X
 {
@@ -9,12 +10,17 @@ namespace econoomic_planer_X
     {
 
         public ResourceType producingType;
-        public double money;
+        public double money { get; set; }
         public Demand demand;
-        private const int startMoney = 5;
+        public const int startMoney = 5;
         double selling = 0;
         public Guid ID { get; set; }
+        public double popLevel { get; set; }
+        public double FoodLevel { get; set; }
+        public Resources stock = new Resources();
 
+        [ForeignKey("Standard")]
+        public Guid RegionID { get; set; }
 
         public Population(){}
 
@@ -27,7 +33,6 @@ namespace econoomic_planer_X
             this.producingType = producingType;
         }
 
-        private double popLevel;
 
         public double GetPopLevel()
         {
@@ -37,8 +42,7 @@ namespace econoomic_planer_X
         {
             popLevel = value;
         }
-        public double FoodLevel { get; set; }
-        public Resources stock = new Resources();
+
 
         public void UpdateDemand(InternalMarket market)
         {

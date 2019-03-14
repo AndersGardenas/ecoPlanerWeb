@@ -22,11 +22,11 @@ namespace ecoPlanerWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<EcoContext>(options =>
-        options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=tempdb;Trusted_Connection=True;MultipleActiveResultSets=true"));
+        options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=test;Trusted_Connection=True;MultipleActiveResultSets=true"));
 
 
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => {
@@ -37,14 +37,9 @@ namespace ecoPlanerWeb
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
 
-            if (env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            } else {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
-            }
+            app.UseDeveloperExceptionPage();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -58,10 +53,8 @@ namespace ecoPlanerWeb
 
             app.UseSpa(spa => {
                 spa.Options.SourcePath = "ClientApp";
+                spa.UseReactDevelopmentServer(npmScript: "start");
 
-                if (env.IsDevelopment()) {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
             });
         }
     }

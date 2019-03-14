@@ -21,7 +21,8 @@
     "react-scripts": "1.1.5",
     "redux": "4.0.1",
     "redux-thunk": "2.3.0",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "axios": "0.18.0"
   },
   "name": "ecoWorld",
   "private": true,

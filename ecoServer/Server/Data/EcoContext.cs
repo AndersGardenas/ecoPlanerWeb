@@ -6,23 +6,23 @@ using econoomic_planer_X.ResourceSet;
 using Microsoft.EntityFrameworkCore;
 using Server.Server.Domain.model.ResourceSet;
 
+
 namespace Server.Server.Infrastructure
 {
     public class EcoContext : DbContext
     {
         public EcoContext(DbContextOptions<EcoContext> options)
-     : base(options) { }
-
-        public EcoContext() {
+     : base(options)
+        {
+            InitDataBase.InitDB(this);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-           // optionsBuilder.UseSqlServer(@"Server=localhost;Database=ecoPlaner;Trusted_Connection=True;MultipleActiveResultSets=true");
+        public EcoContext()
+        {
         }
 
-
-
-        protected override void OnModelCreating(ModelBuilder builder) {
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
             builder.Entity<Artisans>();
             builder.Entity<Farmer>();
 
@@ -33,8 +33,6 @@ namespace Server.Server.Infrastructure
             builder.Ignore<ResourceType>();
 
             base.OnModelCreating(builder);
-
-
         }
 
         public DbSet<Population> Population { get; set; }
@@ -50,6 +48,7 @@ namespace Server.Server.Infrastructure
 
         public DbSet<InternalMarket> InternalMarket { get; set; }
         public DbSet<ExternalMarket> ExternalMarket { get; set; }
+        public DbSet<NeighbourRegion> NeighbourRegion { get; set; }
 
 
     }
