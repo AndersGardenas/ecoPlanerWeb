@@ -24,14 +24,12 @@ namespace econoomic_planer_X.Market
             NewExternatlTradingResources = new List<ExternatlTradingResource>();
         }
 
-        public ExternalMarket(Region Ownregion, List<NeighbourRegion> BorderRegions)
+        public ExternalMarket(Region Ownregion, List<NeighbourRegion> BorderRegions): base ()
         {
-            ExternatlTradingResources = new List<ExternatlTradingResource>();
-            NewExternatlTradingResources = new List<ExternatlTradingResource>();
             TradeRegions = new List<TradeRegion>();
             foreach (NeighbourRegion region in BorderRegions)
             {
-                Region tempRegion = region.Region1  == Ownregion ? region.Region2 : region.Region1;
+                Region tempRegion = region.OwnRegion  == Ownregion ? region.NeighbouringRegion : region.OwnRegion;
                 TradeRegions.Add(new TradeRegion(tempRegion));
             }
             this.Ownregion = Ownregion;
@@ -49,16 +47,16 @@ namespace econoomic_planer_X.Market
             bestRegion = null;
             double regionalTransportCost = Ownregion.GetTransportCost() / 2;
 
-            foreach (TradeRegion region in TradeRegions)
+            foreach (TradeRegion tradeRegion in TradeRegions)
             {
-                double externalTransportCost = region.GetTransportCost() / 2;
+                double externalTransportCost = tradeRegion.GetTransportCost() / 2;
                 double totalTransportCost = regionalTransportCost + externalTransportCost;
-                double resourceCost = region.GetResorceCost(resourceType);
+                double resourceCost = tradeRegion.GetResorceCost(resourceType);
                 double salesCost = resourceCost - totalTransportCost;
                 if (salesCost > bestCost)
                 {
                     bestCost = salesCost;
-                    bestRegion = region;
+                    bestRegion = tradeRegion;
                 }
             }
             return bestCost;

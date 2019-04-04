@@ -18,7 +18,6 @@ namespace Server.Server.Infrastructure
         {
             if (init == false)
             {
-                init = true;
                 context.Database.EnsureDeleted();
                 context.Database.EnsureCreated();
                 var contries = new List<Contry>();
@@ -66,6 +65,7 @@ namespace Server.Server.Infrastructure
 
 
                 context.SaveChanges();
+                init = true;
             }
 
         }
@@ -73,6 +73,7 @@ namespace Server.Server.Infrastructure
 
         private static void RegionCompute(Random random, JToken token, Contry contry)
         {
+            bool first = true;
             foreach (JToken regionsToken in token["geometry"]["coordinates"])
             {
                 var regionGeo = new List<Point>();
@@ -88,7 +89,6 @@ namespace Server.Server.Infrastructure
                 }
                 else
                 {
-                    bool first = true;
                     foreach (JToken regionToken in regionsToken)
                     {
                         foreach (JToken pointToken in regionToken)
@@ -138,7 +138,7 @@ namespace Server.Server.Infrastructure
             {
                 for (int j = 0; j < area2.Count; j++)
                 {
-                    if (lineSegmentsIntersect(area1[i], area1[(i + 1) % area1.Count], area2[j], area2[(j + 1) % area2.Count]))
+                    if (LineSegmentsIntersect(area1[i], area1[(i + 1) % area1.Count], area2[j], area2[(j + 1) % area2.Count]))
                     {
                         return true;
                     }
@@ -161,7 +161,7 @@ namespace Server.Server.Infrastructure
 
             for (int i = 0; i < area.Count; i++)
             {
-                if (lineSegmentsIntersect(area[i], area[(i + 1) % area.Count], start, point))
+                if (LineSegmentsIntersect(area[i], area[(i + 1) % area.Count], start, point))
                 {
                     intersections++;
                 }
@@ -170,16 +170,16 @@ namespace Server.Server.Infrastructure
             return (intersections % 2) == 1;
         }
 
-        private static double determinant(Vector vector1, Vector vector2)
+        private static double Determinant(Vector vector1, Vector vector2)
         {
             return vector1.X * vector2.Y - vector1.Y * vector2.X;
         }
 
-        private static bool lineSegmentsIntersect(Point _segment1_Start, Point _segment1_End, Point _segment2_Start, Point _segment2_End)
+        private static bool LineSegmentsIntersect(Point _segment1_Start, Point _segment1_End, Point _segment2_Start, Point _segment2_End)
         {
-            double det = determinant(_segment1_End - _segment1_Start, _segment2_Start - _segment2_End);
-            double t = determinant(_segment2_Start - _segment1_Start, _segment2_Start - _segment2_End) / det;
-            double u = determinant(_segment1_End - _segment1_Start, _segment2_Start - _segment1_Start) / det;
+            double det = Determinant(_segment1_End - _segment1_Start, _segment2_Start - _segment2_End);
+            double t = Determinant(_segment2_Start - _segment1_Start, _segment2_Start - _segment2_End) / det;
+            double u = Determinant(_segment1_End - _segment1_Start, _segment2_Start - _segment1_Start) / det;
             return (t >= 0) && (u >= 0) && (t <= 1) && (u <= 1);
         }
 

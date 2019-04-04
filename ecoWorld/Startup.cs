@@ -22,7 +22,7 @@ namespace ecoPlanerWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<EcoContext>(options =>
-        options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=test;Trusted_Connection=True;MultipleActiveResultSets=true"));
+        options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=test;User Id=user3; Password=hej123Hej;"));
 
 
 

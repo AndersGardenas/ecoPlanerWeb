@@ -2,6 +2,7 @@
 using econoomic_planer_X.Market;
 using econoomic_planer_X.PopulationTypes;
 using econoomic_planer_X.ResourceSet;
+using ecoServer.Server.Domain.Services.Market;
 using PolygonIntersection;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace econoomic_planer_X
         public Guid ID { get; set; }
 
         public InternalMarket InternalMarket { get; set; }
-        public ExternalMarket externalMarket { get; set; }
+        public ExternalMarket ExternalMarket { get; set; }
         public virtual List<Population> Populations { get; set; }
         public virtual List<NeighbourRegion> Negbours { get; }
         private List<Point> Polygon;
@@ -30,7 +31,7 @@ namespace econoomic_planer_X
         {
             Negbours = new List<NeighbourRegion>();
             InternalMarket = new InternalMarket();
-            externalMarket = new ExternalMarket(this, Negbours);
+            ExternalMarket = new ExternalMarket(this,Negbours);
             Populations = new List<Population>();
         }
 
@@ -52,7 +53,7 @@ namespace econoomic_planer_X
         private void AddNeighbour(Region neighbour)
         {
             Negbours.Add(new NeighbourRegion(this,neighbour));
-            externalMarket.AddNeighbour(neighbour);
+            ExternalMarket.AddNeighbour(neighbour);
         }
 
         public void ConnectNeighbour(Region neighbour)
@@ -100,7 +101,7 @@ namespace econoomic_planer_X
 
         public ExternalMarket GetExternalMarket()
         {
-            return externalMarket;
+            return ExternalMarket;
         }
 
 
@@ -119,7 +120,7 @@ namespace econoomic_planer_X
         {
             InternalMarket.UpdateMarket(Populations);
 
-            InternalMarket.ComputeNewStock(externalMarket);
+            InternalMarket.ComputeNewStock(ExternalMarket);
             InternalMarket.DoTrade(Populations);
 
             UpdatePopulation();
@@ -129,7 +130,7 @@ namespace econoomic_planer_X
 
         public void CleanUp()
         {
-            externalMarket.FinilizeTrades();
+            ExternalMarket.FinilizeTrades();
             InternalMarket.CleanUp();
             foreach (Population pop in Populations)
             {

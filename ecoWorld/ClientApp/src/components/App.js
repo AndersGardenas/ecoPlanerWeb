@@ -20,6 +20,7 @@ export default class App extends Component {
         this.handleLeftPanClick = this.handleLeftPanClick.bind(this);
         this.handleDownPanClick = this.handleDownPanClick.bind(this);
         this.log = this.log.bind(this);
+        this.renderCountries = this.renderCountries.bind(this);
     }
 
 
@@ -35,7 +36,7 @@ export default class App extends Component {
         if (newZoomLevel > maxScrol || newZoomLevel < minScrol) {
             return;
         }
-         window.console.log(newZoomLevel);
+        window.console.log(newZoomLevel);
         this.setState({ currentZoomLevel: newZoomLevel });
     }
 
@@ -79,6 +80,20 @@ export default class App extends Component {
         }
     }
 
+    renderCountries(countryGeoJson) {
+        var regions = requestGetAllContry();
+        var features = countryGeoJson.features.length;
+        var contries = [];
+        for (var i = 0; i < features; i++) {
+            var feature = countryGeoJson.features[i];
+
+            let style3 = () => ({
+                color: '#1a1d62', weight: 0.5});
+            contries[i] = <GeoJSON data={feature} style={style3} />;
+        }
+        return contries;
+    }
+
 
     render() {
         return (
@@ -94,9 +109,8 @@ export default class App extends Component {
                     <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                         url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                     />
-                    <GeoJSON
-                        data={geojson}
-                    />
+
+                    {this.renderCountries(geojson)}
                 </Map>
             </div>
         );
@@ -120,8 +134,8 @@ function inside(point, area) {
         for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
             var xi = vs[i][0], yi = vs[i][1];
             var xj = vs[j][0], yj = vs[j][1];
-            var intersect = (yi > y) !== (yj > y)
-                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            var intersect = yi > y !== yj > y
+                && x < (xj - xi) * (y - yi) / (yj - yi) + xi;
             if (intersect) {
                 inside = !inside;
             }
@@ -131,14 +145,18 @@ function inside(point, area) {
         }
     }
     return false;
-};
+}
 
-async function  requestGetContry(index){    
-
-
-
-    const url = `api/SampleData/getContry?name=${index}`
+async function requestGetContry(index) {
+    const url = `api/SampleData/getContry?name=${index}`;
     axios(url).then(
         response => console.log('Contry has --->', response.data)
     );
-};
+}
+
+async function requestGetAllContry() {
+    const url = `api/SampleData/GetAllContry`;
+    axios(url).then(
+        response => console.log('Contry has --->', response.data)
+    );
+}

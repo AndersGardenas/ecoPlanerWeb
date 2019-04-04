@@ -29,6 +29,13 @@ namespace Server.Server.Infrastructure
             builder.Entity<ExternatlTradingResource>();
             builder.Entity<TradingResource>();
 
+            builder.Entity<NeighbourRegion>().HasOne(r => r.OwnRegion)
+                .WithMany(r => r.Negbours);
+
+            builder.Entity<NeighbourRegion>().HasOne(r => r.NeighbouringRegion)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Ignore<ResourceTypes>();
             builder.Ignore<ResourceType>();
 
@@ -49,7 +56,5 @@ namespace Server.Server.Infrastructure
         public DbSet<InternalMarket> InternalMarket { get; set; }
         public DbSet<ExternalMarket> ExternalMarket { get; set; }
         public DbSet<NeighbourRegion> NeighbourRegion { get; set; }
-
-
     }
 }
