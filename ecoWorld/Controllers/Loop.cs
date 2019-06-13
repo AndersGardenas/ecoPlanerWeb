@@ -1,29 +1,38 @@
+
 using econoomic_planer_X;
 using econoomic_planer_X.ResourceSet;
+using Microsoft.AspNetCore.Mvc;
+using Server.Server.Infrastructure;
 using System;
 using System.Collections.Generic;
 
 namespace ecoPlanerWeb
 {
-    public class Program
+    [Route("api2/[controller]")]
+    public class Loop : Controller
     {
-        public static void Main()
+        protected EcoContext context;
+
+        public Loop(EcoContext context)
         {
-            Init(null);
+            this.context = context;
         }
 
-
-        public static void Init(List<Contry> contries) {
+        public void Init()
+        {
             Console.WriteLine("Hello World!");
             ResourceTypes.Init();
-
+            IEnumerable<Contry> contries = context.Contry;
 
 
             int iter = 0;
             while (true)
             {
                 Console.WriteLine("------------------------New gen------------------------------------" + iter++);
-                contries.ForEach(c => c.Update());
+                foreach (Contry contry in contries)
+                {
+                    contry.Update();
+                }
                 System.Threading.Thread.Sleep(1000);
             }
         }

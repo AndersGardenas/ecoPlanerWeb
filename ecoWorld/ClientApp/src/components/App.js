@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { Map, TileLayer, GeoJSON } from 'react-leaflet';
-import ContryInfo from './ContryInfo.js';
-import axios from 'axios';
-
+import SideBar from './SideBar';
 
 const mapCenter = [39.9528, -75.1638];
 const zoomLevel = 3;
@@ -15,14 +13,10 @@ export default class App extends Component {
         super(props);
         this.state = { currentZoomLevel: zoomLevel };
         this.state = { contry: null };
-        this.handleUpPanClick = this.handleUpPanClick.bind(this);
-        this.handleRightPanClick = this.handleRightPanClick.bind(this);
-        this.handleLeftPanClick = this.handleLeftPanClick.bind(this);
-        this.handleDownPanClick = this.handleDownPanClick.bind(this);
         this.log = this.log.bind(this);
         this.renderCountries = this.renderCountries.bind(this);
+        this.setColor = this.setColor.bind(this);
     }
-
 
     componentDidMount() {
         const leafletMap = this.leafletMap.leafletElement;
@@ -33,37 +27,9 @@ export default class App extends Component {
     }
 
     handleZoomLevelChange(newZoomLevel) {
-        if (newZoomLevel > maxScrol || newZoomLevel < minScrol) {
-            return;
-        }
         window.console.log(newZoomLevel);
         this.setState({ currentZoomLevel: newZoomLevel });
     }
-
-    handleUpPanClick() {
-        const leafletMap = this.leafletMap.leafletElement;
-        leafletMap.panBy([0, -100]);
-        window.console.log('Panning up');
-    }
-
-    handleRightPanClick() {
-        const leafletMap = this.leafletMap.leafletElement;
-        leafletMap.panBy([100, 0]);
-        window.console.log('Panning right');
-    }
-
-    handleLeftPanClick() {
-        const leafletMap = this.leafletMap.leafletElement;
-        leafletMap.panBy([-100, 0]);
-        window.console.log('Panning left');
-    }
-
-    handleDownPanClick() {
-        const leafletMap = this.leafletMap.leafletElement;
-        leafletMap.panBy([0, 100]);
-        window.console.log('Panning down');
-    }
-
 
     log(e) {
         var point = [e.latlng.lng, e.latlng.lat];
@@ -73,45 +39,57 @@ export default class App extends Component {
 
             if (inside(point, feature.geometry.coordinates) === true) {
                 this.setState({ contry: feature.properties.admin });
-                requestGetContry(this.state.contry);
-
                 break;
             }
         }
     }
 
     renderCountries(countryGeoJson) {
-        var regions = requestGetAllContry();
         var features = countryGeoJson.features.length;
         var contries = [];
         for (var i = 0; i < features; i++) {
             var feature = countryGeoJson.features[i];
+            if (this.state.contry === feature.properties.admin) {
+                this.setColor('#00008B', contries, i, feature);
+            } else {
+                this.setColor('#1a1d62', contries, i, feature);
+            }
 
-            let style3 = () => ({
-                color: '#1a1d62', weight: 0.5});
-            contries[i] = <GeoJSON data={feature} style={style3} />;
         }
         return contries;
     }
 
+    setColor(colorValue, contries, i, feature) {
+        let style3 = () => ({
+            color: colorValue, weight: 0.5
+        });
+        contries[i] = <GeoJSON data={feature} style={style3} key={'setColor' + i} />;
+    }
 
     render() {
         return (
-            <div>
-                <ContryInfo contry={this.state.contry} />
-                <Map
-                    ref={m => { this.leafletMap = m; }}
-                    center={mapCenter}
-                    zoom={zoomLevel}
-                    onLocationfound={this.handleLocationFound}
-                    onClick={this.log}
-                >
-                    <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                        url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-                    />
+            <div className="row">
+                <div className="col-2">
+                    <SideBar contry={this.state.contry}  />
+                </div>
+                <div className="col-10">
+                    <Map
+                        ref={m => { this.leafletMap = m; }}
+                        center={mapCenter}
+                        zoom={zoomLevel}
+                        maxZoom={maxScrol}
+                        minZoom={minScrol}
+                        onClick={this.log}
+                        maxBounds={[[-90, -260], [90, 260]]}
+                    >    
+                        <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                            url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+                            noWrap='false'
+                        />
 
-                    {this.renderCountries(geojson)}
-                </Map>
+                        {this.renderCountries(geojson)}
+                    </Map>
+                </div>
             </div>
         );
     }
@@ -134,7 +112,9 @@ function inside(point, area) {
         for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
             var xi = vs[i][0], yi = vs[i][1];
             var xj = vs[j][0], yj = vs[j][1];
-            var intersect = yi > y !== yj > y
+            var yiGreater = yi > y;
+            var yjGreater = yj > y;
+            var intersect = yiGreater !== yjGreater
                 && x < (xj - xi) * (y - yi) / (yj - yi) + xi;
             if (intersect) {
                 inside = !inside;
@@ -145,18 +125,4 @@ function inside(point, area) {
         }
     }
     return false;
-}
-
-async function requestGetContry(index) {
-    const url = `api/SampleData/getContry?name=${index}`;
-    axios(url).then(
-        response => console.log('Contry has --->', response.data)
-    );
-}
-
-async function requestGetAllContry() {
-    const url = `api/SampleData/GetAllContry`;
-    axios(url).then(
-        response => console.log('Contry has --->', response.data)
-    );
 }

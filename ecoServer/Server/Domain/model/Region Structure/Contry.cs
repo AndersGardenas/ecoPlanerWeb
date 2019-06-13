@@ -21,7 +21,7 @@ namespace econoomic_planer_X
             Regions.Add(region);
         }
 
-        void Update()
+        public void Update()
         {
             Regions = new List<Region>();
             foreach (Region region in Regions)

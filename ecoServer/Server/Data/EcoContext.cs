@@ -14,7 +14,6 @@ namespace Server.Server.Infrastructure
         public EcoContext(DbContextOptions<EcoContext> options)
      : base(options)
         {
-            InitDataBase.InitDB(this);
         }
 
         public EcoContext()

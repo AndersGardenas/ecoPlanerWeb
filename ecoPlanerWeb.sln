@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2047
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28917.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ecoWorld", "ecoWorld\ecoWorld.csproj", "{9B8A916B-0B36-4F95-AE98-B7A589DDC38D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ecoWorld", "ecoWorld\ecoWorld.csproj", "{9B8A916B-0B36-4F95-AE98-B7A589DDC38D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ecoServer", "ecoServer\ecoServer.csproj", "{50FD0AAC-0896-4E81-8ECF-CD38FE1D63BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ecoServer", "ecoServer\ecoServer.csproj", "{50FD0AAC-0896-4E81-8ECF-CD38FE1D63BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

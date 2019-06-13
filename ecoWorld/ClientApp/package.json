@@ -6,7 +6,7 @@
     "babel-plugin-transform-class-properties": "6.10.2",
     "babel-preset-react": "6.5.0",
     "babel-preset-react-hmre": "1.1.1",
-    "bootstrap": "^3.3.7",
+    "bootstrap": "4.3.1",
     "json-loader": "^0.5.4",
     "leaflet": "^1.3.4",
     "react": "16.6.3",
@@ -24,7 +24,6 @@
     "rimraf": "^2.6.2",
     "axios": "0.18.0"
   },
-  "name": "ecoWorld",
   "private": true,
   "scripts": {
     "start": "rimraf ./build && react-scripts start",

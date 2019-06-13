@@ -15,12 +15,12 @@ namespace PolygonIntersection {
 		}
 
 		static public PolyVector FromPoint(int x, int y) {
-			return new PolyVector((float)x, (float)y);
+			return new PolyVector(x, y);
 		}
 
 		public PolyVector(float x, float y) {
-			this.X = x;
-			this.Y = y;
+			X = x;
+			Y = y;
 		}
 
 		public float Magnitude {
@@ -29,8 +29,8 @@ namespace PolygonIntersection {
 
 		public void Normalize() {
 			float magnitude = Magnitude;
-			X = X / magnitude;
-			Y = Y / magnitude;
+			X /= magnitude;
+			Y /= magnitude;
 		}
 
 		public PolyVector GetNormalized() {
@@ -81,7 +81,6 @@ namespace PolygonIntersection {
 
 		public override bool Equals(object obj) {
 			PolyVector v = (PolyVector)obj;
-
 			return X == v.X && Y == v.Y;
 		}
 
@@ -112,8 +111,5 @@ namespace PolygonIntersection {
 				return ToString();
 			}
 		}
-
-
 	}
-
 }

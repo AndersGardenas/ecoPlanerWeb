@@ -22,8 +22,7 @@ namespace ecoPlanerWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
             services.AddDbContext<EcoContext>(options =>
-        options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=test;User Id=user3; Password=hej123Hej;"));
-
+       options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=test;User Id=user3; Password=hej123Hej;"));
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
@@ -38,8 +37,8 @@ namespace ecoPlanerWeb
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-
             app.UseDeveloperExceptionPage();
+            InitDataBase.InitDB(app.ApplicationServices);
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

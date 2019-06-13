@@ -1,6 +1,7 @@
 using econoomic_planer_X;
 using Microsoft.AspNetCore.Mvc;
 using Server.Server.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +11,7 @@ namespace ecoPlanerWeb.Controllers
     public class SampleDataController : Controller
     {
         protected EcoContext context;
+
         public SampleDataController(EcoContext context)
         {
             this.context = context;
@@ -22,12 +24,13 @@ namespace ecoPlanerWeb.Controllers
             {
                 return NotFound();
             }
-            IQueryable<Region> regions = context.Region.Where(r => r.ContryID == context.Contry.First(c => c.Name.Equals(name)).ID);
+            Guid contryId = context.Contry.First(c => c.Name.Equals(name)).ID;
+            IQueryable<Region> regions = context.Region.Where(r => r.ContryID == contryId);
             if (regions.FirstOrDefault() == null)
             {
                 return NotFound();
             }
-            return Ok(context.Population.Where(p => regions.Any(r => r.ID == p.RegionID)).Sum(p => p.popLevel).ToString());
+            return  Ok(context.Population.Where(p => regions.Any(r => r.ID == p.RegionID)).Sum(p => p.popLevel).ToString());
         }
 
         [HttpGet("[action]")]
@@ -35,7 +38,6 @@ namespace ecoPlanerWeb.Controllers
         {
             IEnumerable<Region> regions = context.Region;
             return Ok(regions);
-            //return context.Population.Where(p => regions.Any(r => r.ID == p.RegionID)).Sum(p => p.popLevel).ToString();
-        }
+         }
     }
 }

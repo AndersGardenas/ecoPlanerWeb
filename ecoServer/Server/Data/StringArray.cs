@@ -10,13 +10,11 @@ namespace Server.Server.Data
         public string Data { get; set; }
         private readonly char token = ',';
 
-
         public StringArray() { }
 
         public StringArray(int size) {
             Init(size);
         }
-
 
         public void Init(int size) {
             this.Size = size;
@@ -42,7 +40,6 @@ namespace Server.Server.Data
                 Data = stringBuilder.ToString();
             }
         }
-
         public int GetNthIndex(string s, char t, int n) {
             int count = 0;
             for (int i = 0; i < s.Length; i++) {
