@@ -7,13 +7,14 @@ namespace econoomic_planer_X
     public class Contry
     {
         public virtual List<Region> Regions { get; set; }
-        public Guid ID { get; set; }
-        public string Name {get; set; }
+        public int ID { get; set; }
+        public string Name { get; set; }
 
-        public Contry(){}
-        public Contry(string name) {
+        public Contry() { }
+        public Contry(string name)
+        {
             Regions = new List<Region>();
-            this.Name = name;
+            Name = name;
         }
 
         public void AddRegion(Region region)
@@ -23,7 +24,6 @@ namespace econoomic_planer_X
 
         public void Update()
         {
-            Regions = new List<Region>();
             foreach (Region region in Regions)
             {
                 region.Update();

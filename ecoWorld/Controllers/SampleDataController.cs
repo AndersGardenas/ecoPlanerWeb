@@ -1,5 +1,7 @@
 using econoomic_planer_X;
+using econoomic_planer_X.Market;
 using Microsoft.AspNetCore.Mvc;
+using Server.Server.Domain.model.ResourceSet;
 using Server.Server.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -24,13 +26,25 @@ namespace ecoPlanerWeb.Controllers
             {
                 return NotFound();
             }
-            Guid contryId = context.Contry.First(c => c.Name.Equals(name)).ID;
+            int contryId = context.Contry.First(c => c.Name.Equals(name)).ID;
             IQueryable<Region> regions = context.Region.Where(r => r.ContryID == contryId);
-            if (regions.FirstOrDefault() == null)
+            Region region =  regions.FirstOrDefault();
+            if (region == null)
             {
                 return NotFound();
             }
-            return  Ok(context.Population.Where(p => regions.Any(r => r.ID == p.RegionID)).Sum(p => p.popLevel).ToString());
+            IQueryable<Population> populations = context.Population.Where(p => regions.Any(r => r.ID == p.RegionID));
+
+            string toSend = populations.Sum(p => p.PopLevel).ToString();
+            toSend += "," + populations.Sum(p => p.Money).ToString();
+            var resData = context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarket.Id).ToList();
+            toSend += "," + resData[0].ResourceType.ToString() + " " + resData[0].ResourcesPrice;
+            toSend += "," + resData[1].ResourceType.ToString() + " " + resData[1].ResourcesPrice;
+            //foreach (ResourceData r in  regions.FirstOrDefault().InternalMarket.ResourceData)
+            //{
+            //    toSend += " " + r.Id + " " +  r.ResourcesPrice.ToString();
+            //}
+            return Ok(toSend);
         }
 
         [HttpGet("[action]")]
@@ -38,6 +52,6 @@ namespace ecoPlanerWeb.Controllers
         {
             IEnumerable<Region> regions = context.Region;
             return Ok(regions);
-         }
+        }
     }
 }

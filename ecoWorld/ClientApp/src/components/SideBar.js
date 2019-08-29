@@ -5,11 +5,14 @@ export default class HelloMessage extends React.Component {
     constructor(props) {
         super(props);
         this.state = { contryPop: 0 };
+        this.state = { money: 0 };
+        this.state = { price: 0 };
+        this.state = { price2: 0 };
         this.requestGetContry = this.requestGetContry.bind(this);
     }
 
     componentDidMount() {
-        this.interval = setInterval(() => this.requestGetContry(), 2000);
+        this.interval = setInterval(() => this.requestGetContry(), 500);
     }
 
     componentDidUpdate(prevProps) {
@@ -31,7 +34,7 @@ export default class HelloMessage extends React.Component {
         axios(url).then(
             response => {
                 if (tmpContry === this.props.contry) {
-                    this.setState({ contryPop: response.data });
+                    this.setState({ contryPop: response.data.split(",")[0], money: response.data.split(",")[1], price: response.data.split(",")[2], price2: response.data.split(",")[3]  });
                 }
             }
         );
@@ -43,6 +46,9 @@ export default class HelloMessage extends React.Component {
                 <button type="button">Start</button>
                 <p>Hello {this.props.contry} </p>
                 <p>Populations is: {nFormatter(this.state.contryPop,2)}</p>
+                <p>Money is: {nFormatter(this.state.money,2)}</p>
+                <p>: {this.state.price}</p>
+                <p>: {this.state.price2}</p>
             </div>
         );
     }

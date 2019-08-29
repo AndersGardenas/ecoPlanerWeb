@@ -5,22 +5,25 @@ namespace Server.Server.Domain.model.ResourceSet
 {
     public class Destination
     {
-        public Guid Id  { get; set; }
+        public int Id { get; set; }
         public double DaysRemaning { get; set; }
         public ExternalMarket MarketDestination { get; }
 
 
         public Destination() { }
-        public Destination(ExternalMarket destination, double daysRemaning) {
+        public Destination(ExternalMarket destination, double daysRemaning)
+        {
             DaysRemaning = daysRemaning;
             MarketDestination = destination;
         }
 
-        public void TransportADay() {
+        public void TransportADay()
+        {
             DaysRemaning -= 1;
         }
 
-        public bool AtDestination() {
+        public bool AtDestination()
+        {
             return DaysRemaning <= 0;
         }
 

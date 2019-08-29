@@ -6,21 +6,19 @@ namespace econoomic_planer_X.ResourceSet
 
     public class Resource
     {
-        public Guid Id { get; set; }
-        public ResourceType ResourceType { get; set; }
+        public int Id { get; set; }
+
+        public virtual ResourceTypes.ResourceType ResourceType { get; set; }
         public double Amount { get; set; }
 
-        public Resource(){}
+        public Resource() { }
 
 
-        public Resource(ResourceType ResourceType, double Amount)
+        public Resource(ResourceTypes.ResourceType ResourceType, double Amount)
         {
-            Id = Guid.NewGuid();
             this.ResourceType = ResourceType;
             this.Amount = Amount;
         }
-
-
 
         public static int ResourceTypeSize()
         {

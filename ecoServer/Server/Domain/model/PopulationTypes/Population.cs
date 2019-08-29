@@ -9,54 +9,54 @@ namespace econoomic_planer_X
     public abstract class Population
     {
 
-        public ResourceType producingType;
-        public double money { get; set; }
-        public Demand demand;
-        public const int startMoney = 5;
+        public virtual ResourceTypes.ResourceType ProducingType { get; set; }
+        public virtual Resources Stock { get; set; }
+        public double Money { get; set; }
+        public const double startMoney = 5;
         double selling = 0;
-        public Guid ID { get; set; }
-        public double popLevel { get; set; }
+        public int ID { get; set; }
+        public double PopLevel { get; set; }
         public double FoodLevel { get; set; }
-        public Resources stock = new Resources();
 
         [ForeignKey("Standard")]
-        public Guid RegionID { get; set; }
+        public int RegionID { get; set; }
+        public virtual Region Region { get; set; }
 
-        public Population(){}
+        public Population() { }
 
-        public Population(int Amount, ResourceType producingType)
+        public Population(int Amount, ResourceTypes.ResourceType producingType)
         {
-            demand = new Demand();
-            ID = Guid.NewGuid();
+            Stock = new Resources().Init();
             SetPopLevel(Amount);
-            money = Amount * startMoney;
-            this.producingType = producingType;
+            Money = Amount * startMoney;
+            this.ProducingType = producingType;
         }
 
 
         public double GetPopLevel()
         {
-            return (int)popLevel;
+            return (int)PopLevel;
         }
         public void SetPopLevel(double value)
         {
-            popLevel = value;
+            PopLevel = value;
         }
 
 
         public void UpdateDemand(InternalMarket market)
         {
-            demand.UpdateDemand(market, this);
+            Demand.UpdateDemand(market, this);
         }
 
         public bool AffordTransport()
         {
-            return money > popLevel;
+            return Money > PopLevel;
         }
 
-        public void TradeGain(double money)
+        public void Trade(double money, PrimitivResource resource)
         {
-            this.money += money;
+            Money += money;
+            Stock.Adjust(resource);
         }
 
 
@@ -68,39 +68,33 @@ namespace econoomic_planer_X
 
         public double GetSallery(InternalMarket market)
         {
-            return GetEfficensy() * market.GetPrice(producingType);
+            return GetEfficensy() * market.GetPrice(ProducingType);
         }
 
         public void Consume()
         {
             FoodLevel = 0;
 
-            foreach (ResourceType resourceType in ResourceTypes.resourceTypes)
+            foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
 
-                double neededAmount = demand.GetDemand(resourceType);
+                double neededAmount = Demand.GetDemand(resourceType);
                 if (neededAmount == 0)
                 {
                     continue;
                 }
 
-                double amountInStock = stock.GetAmount(resourceType);
+                double amountInStock = Stock.GetAmount(resourceType);
 
                 double ratio = Math.Min(1, amountInStock / neededAmount);
-                FoodLevel += ratio * demand.GetLifeValueAdjusted(resourceType);
-                stock.Adjust(new Resource(resourceType, -ratio * neededAmount));
+                FoodLevel += ratio * Demand.GetLifeValueAdjusted(resourceType);
+                Stock.Adjust(new PrimitivResource(resourceType, -ratio * neededAmount));
             }
-        }
-
-        internal void Print()
-        {
-            Console.Out.WriteLine("Poplevel is: " + GetPopLevel() + " Money level is: " + money);
         }
 
         public void ChangePop(double newPop)
         {
-            popLevel = Math.Max(newPop + popLevel, 0);
-
+            PopLevel = Math.Max(newPop + PopLevel, 0);
         }
 
         public double UpdatePopulation()
@@ -123,31 +117,24 @@ namespace econoomic_planer_X
 
         public Resource Selling()
         {
-            double stockAmount = stock.GetAmount(producingType);
-            stock.SetResource(new Resource(producingType, 0));
-            return new Resource(producingType, stockAmount);
+            double stockAmount = Stock.GetAmount(ProducingType);
+            Stock.SetResource(new PrimitivResource(ProducingType, 0));
+            return new Resource(ProducingType, stockAmount);
         }
-
 
         public void Produce()
         {
             double produce = GetPopLevel() * GetEfficensy();
-            Resource resource = new Resource(producingType, produce);
-            stock.Adjust(resource);
-            selling = stock.GetAmount(producingType);
+            var resource = new PrimitivResource(ProducingType, produce);
+            Stock.Adjust(resource);
+            selling = Stock.GetAmount(ProducingType);
         }
 
-        public double BuyAmount(double ratio, double price, ResourceType resourceType)
+        public void BuyAmount(double ratio, double price, ResourceTypes.ResourceType resourceType)
         {
-            double buyAmount = demand.GetDemand(resourceType) * ratio;
-            stock.Adjust(new Resource(resourceType, buyAmount));
-            money -= buyAmount * price;
-            return demand.GetDemand(resourceType);
-        }
-
-        public bool Producing(ResourceType resourceType)
-        {
-            return resourceType == producingType;
+            double buyAmount = Demand.GetDemand(resourceType) * ratio;
+            Stock.Adjust(new PrimitivResource(resourceType, buyAmount));
+            Money -= buyAmount * price;
         }
     }
 }

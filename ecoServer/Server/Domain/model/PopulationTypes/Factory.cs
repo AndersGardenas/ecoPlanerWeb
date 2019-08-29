@@ -27,6 +27,6 @@
 //            }
 //            return new Resource(resourceType,sum);
 //        }
-        
+
 //    }
 //}

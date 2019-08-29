@@ -7,13 +7,15 @@
     <IsPackable>false</IsPackable>
     <SpaRoot>ClientApp\</SpaRoot>
     <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="BootstrapBreadcrumbs.Core" Version="1.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview3.19128.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0-preview3.19128.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview3.19128.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.0.0-preview3.19153.1" />
     <PackageReference Include="Webpack" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -21,10 +23,19 @@
     <Content Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="package-lock.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove="ClientApp\.gitignore" />
+    <None Remove="ClientApp\.gitignore" />
+    <None Remove="ClientApp\bundle.js" />
+    <None Remove="ClientApp\bundle.js" />
+    <None Remove="ClientApp\package-lock.json" />
+  </ItemGroup>
 
   <ItemGroup>
-    <Content Include="ClientApp\src\appsettings.Development.json" />
-    <Content Include="ClientApp\src\appsettings.json" />
     <Content Include="ClientApp\src\custom.geo.json" />
   </ItemGroup>
 
@@ -37,11 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="PresentationCore">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview3-27504-2\PresentationCore.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview3-27504-2\WindowsBase.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview6-27804-01\WindowsBase.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -4,9 +4,9 @@ namespace econoomic_planer_X.PopulationTypes
 {
     public class Farmer : Population
     {
-        public Farmer(){}
+        public Farmer() { }
 
-        public Farmer(int Amount,ResourceType producingType): base(Amount,producingType){ }
+        public Farmer(int Amount, ResourceTypes.ResourceType producingType) : base(Amount, producingType) { }
 
         public override double GetEfficensy()
         {

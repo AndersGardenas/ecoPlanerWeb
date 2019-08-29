@@ -1,32 +1,22 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
+﻿using System;
 
 namespace econoomic_planer_X.ResourceSet
 {
-    public class ResourceTypes  
+    public class ResourceTypes
     {
-        [NotMapped]
-        public static List<ResourceType> resourceTypes = new List<ResourceType>();
-
-        public static void Init()
+        public enum ResourceType
         {
-            resourceTypes.Add(new ResourceType("Fruit"));
-            resourceTypes.Add(new ResourceType("Cloth"));
-        }
+            Fruit, Cloth
+        };
 
         public static int TotalAmount()
         {
-            return ResourceType.totalAmount;
-        }
-        public static void AddResourceType(string name)
-        {
-            resourceTypes.Add(new ResourceType(name));
+            return ResourceType.GetNames(typeof(ResourceType)).Length;
         }
 
-        public static ResourceType GetResourceType(string name)
+        public static ResourceType[] GetIterator()
         {
-            return resourceTypes.First(re => re.Name.CompareTo(name) == 0);
+            return (ResourceType[])Enum.GetValues(typeof(ResourceType));
         }
     }
 }

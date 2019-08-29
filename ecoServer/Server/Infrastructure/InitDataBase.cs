@@ -1,15 +1,11 @@
 ﻿
 using econoomic_planer_X;
-using econoomic_planer_X.ResourceSet;
-using ecoPlanerWeb;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 
@@ -17,16 +13,17 @@ namespace Server.Server.Infrastructure
 {
     public class InitDataBase
     {
-        static EcoContext ecoContext;
-        
         public static void InitDB(IServiceProvider service)
         {
-            using var serviceScope = service.CreateScope();
-            var scopeServiceProvider = serviceScope.ServiceProvider;
+            using IServiceScope serviceScope = service.CreateScope();
+            var scopeServiceProvider = service.CreateScope().ServiceProvider;
             EcoContext context = scopeServiceProvider.GetService<EcoContext>();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+            context.SaveChanges();
+
             var contries = new List<Contry>();
             Console.WriteLine("Hello World!");
-            ResourceTypes.Init();
             using (StreamReader file = File.OpenText(@"C:\Users\Anders\Source\Repos\ecoPlanerWeb\ecoWorld\ClientApp\src\custom.geo.json"))
             {
                 var random = new Random();
@@ -45,29 +42,26 @@ namespace Server.Server.Infrastructure
                 }
             }
 
-            for (int i = 0; i < contries.Count; i++)
-            {
-                for (int j = i + 1; j < contries.Count; j++)
-                {
-                    foreach (Region region1 in contries[i].Regions)
-                    {
-                        foreach (Region region2 in contries[j].Regions)
-                        {
-                            bool intersect = 10 > Math.Sqrt(Math.Pow(region1.CenterX - region2.CenterX, 2) + Math.Pow(region1.CenterY - region2.CenterY, 2));
-                            //PointCollectionsOverlap_Fast(new PointCollection(region1.GetPolygon()), new PointCollection(region2.GetPolygon()));
+            //for (int i = 0; i < contries.Count; i++)
+            //{
+            //    for (int j = i + 1; j < contries.Count; j++)
+            //    {
+            //        foreach (Region region1 in contries[i].Regions)
+            //        {
+            //            foreach (Region region2 in contries[j].Regions)
+            //            {
+            //                bool intersect = 10 > Math.Sqrt(Math.Pow(region1.CenterX - region2.CenterX, 2) + Math.Pow(region1.CenterY - region2.CenterY, 2));
+            //                //PointCollectionsOverlap_Fast(new PointCollection(region1.GetPolygon()), new PointCollection(region2.GetPolygon()));
 
-                            if (intersect)
-                            {
-                                region1.ConnectNeighbour(region2);
-                            }
+            //                if (intersect)
+            //                {
+            //                    region1.ConnectNeighbour(region2);
+            //                }
 
-                        }
-                    }
-                }
-            }
-            // op.Connect(op2);
-
-            context.Database.EnsureCreated();
+            //            }
+            //        }
+            //    }
+            //}
             context.SaveChanges();
         }
 

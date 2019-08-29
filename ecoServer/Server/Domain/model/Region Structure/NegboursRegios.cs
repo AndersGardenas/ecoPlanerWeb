@@ -1,24 +1,21 @@
 ﻿
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace econoomic_planer_X
 {
     public class NeighbourRegion
     {
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [Key]
-        public Region OwnRegion { get; set; }
+        public virtual Region OwnRegion { get; set; }
         [Key]
-        public Region NeighbouringRegion { get; set; }
+        public virtual Region NeighbouringRegion { get; set; }
 
         public NeighbourRegion()
         {
-
         }
 
         public NeighbourRegion(Region OwnRegion, Region NeighbouringRegion)

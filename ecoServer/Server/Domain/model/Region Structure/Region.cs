@@ -2,57 +2,57 @@
 using econoomic_planer_X.Market;
 using econoomic_planer_X.PopulationTypes;
 using econoomic_planer_X.ResourceSet;
-using ecoServer.Server.Domain.Services.Market;
-using PolygonIntersection;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Windows;
 
 namespace econoomic_planer_X
 {
     public class Region
     {
-        public Guid ID { get; set; }
+        public int ID { get; set; }
 
-        public InternalMarket InternalMarket { get; set; }
-        public ExternalMarket ExternalMarket { get; set; }
+        public virtual InternalMarket InternalMarket { get; set; }
+        public virtual ExternalMarket ExternalMarket { get; set; }
         public virtual List<Population> Populations { get; set; }
-        public virtual List<NeighbourRegion> Negbours { get; }
-        private List<Point> Polygon;
+        public virtual List<NeighbourRegion> Negbours { get; set; }
+
+        private readonly List<Point> Polygon;
         public double CenterX { get; set; }
         public double CenterY { get; set; }
 
-        [ForeignKey("Standard")]
-        public Guid ContryID { get; set; }
+        public int ContryID { get; set; }
 
 
         public Region()
         {
-            Negbours = new List<NeighbourRegion>();
-            InternalMarket = new InternalMarket();
-            ExternalMarket = new ExternalMarket(this,Negbours);
-            Populations = new List<Population>();
         }
 
-        public Region(bool fruits, int population, List<Point> polygon, Point center): this()
+        public Region(bool fruits, int population, List<Point> polygon, Point center) : this()
         {
-            this.Polygon = polygon;
+            Negbours = new List<NeighbourRegion>();
+            InternalMarket = new InternalMarket();
+            InternalMarket.Init();
+            ExternalMarket = new ExternalMarket(this);
+            Populations = new List<Population>();
+
+            Polygon = polygon;
             CenterX = center.X;
             CenterY = center.Y;
 
             if (fruits)
             {
-                Populations.Add(new Farmer(population, ResourceTypes.GetResourceType("Fruit")));
+                Populations.Add(new Farmer(population, ResourceTypes.ResourceType.Fruit));
             }
             else
             {
-                Populations.Add(new Farmer(population, ResourceTypes.GetResourceType("Cloth")));
+                Populations.Add(new Farmer(population, ResourceTypes.ResourceType.Cloth));
             }
         }
+
         private void AddNeighbour(Region neighbour)
         {
-            Negbours.Add(new NeighbourRegion(this,neighbour));
+            Negbours.Add(new NeighbourRegion(this, neighbour));
             ExternalMarket.AddNeighbour(neighbour);
         }
 
@@ -69,15 +69,15 @@ namespace econoomic_planer_X
 
         public double GetTransportCost()
         {
-            return GetTransportTime() * 0;
+            return GetTransportTime();
         }
 
         public double GetTransportTime()
         {
-            return 1;
+            return 0;
         }
 
-        public double GetResorceCost(ResourceType resource)
+        public double GetResorceCost(ResourceTypes.ResourceType resource)
         {
             return InternalMarket.GetPrice(resource);
         }
@@ -119,13 +119,11 @@ namespace econoomic_planer_X
         public void Update()
         {
             InternalMarket.UpdateMarket(Populations);
-
             InternalMarket.ComputeNewStock(ExternalMarket);
             InternalMarket.DoTrade(Populations);
 
             UpdatePopulation();
-
-
+            CleanUp();
         }
 
         public void CleanUp()
@@ -134,7 +132,7 @@ namespace econoomic_planer_X
             InternalMarket.CleanUp();
             foreach (Population pop in Populations)
             {
-                pop.Print();
+                //pop.Print();
             }
         }
     }

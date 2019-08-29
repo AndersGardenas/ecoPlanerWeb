@@ -7,18 +7,16 @@ namespace ecoServer.Server.Domain.Services.Market
 {
     public class TradeRegion
     {
-        public Guid ID { get; set; }
-        public Region Region {get; set;}
-        private Resources transportAmount;
+        public int ID { get; set; }
+        public virtual Region Region { get; set; }
+        private readonly Resources transportAmount;
         private readonly double tradeChange = 0.05;
-
 
         public TradeRegion() { }
 
-
         public TradeRegion(Region region)
         {
-            transportAmount = new Resources();
+            transportAmount = new Resources().Init();
             Region = region;
         }
 
@@ -27,7 +25,7 @@ namespace ecoServer.Server.Domain.Services.Market
             return Region.GetTransportCost();
         }
 
-        public double GetResorceCost(ResourceType resourceType)
+        public double GetResorceCost(ResourceTypes.ResourceType resourceType)
         {
             return Region.GetResorceCost(resourceType);
         }
@@ -37,22 +35,22 @@ namespace ecoServer.Server.Domain.Services.Market
             return Region.GetExternalMarket();
         }
 
-        public void IncreaseTrade(ResourceType resourceType)
+        public void IncreaseTrade(ResourceTypes.ResourceType resourceType)
         {
-            double newAmount = Math.Min(transportAmount.GetResource(resourceType).Amount + tradeChange,1);
-            transportAmount.SetResource(resourceType,newAmount);
+            double newAmount = Math.Min(transportAmount.GetResource(resourceType).Amount + tradeChange, 1);
+            transportAmount.SetResource(resourceType, newAmount);
         }
 
-        public void DecreseTrade(ResourceType resourceType)
+        public void DecreseTrade(ResourceTypes.ResourceType resourceType)
         {
             double resourceAmount = transportAmount.GetResource(resourceType).Amount;
             if (resourceAmount == 0) return;
 
-            double newAmount = Math.Min(resourceAmount - tradeChange,1);
-            transportAmount.SetResource(resourceType,newAmount);
+            double newAmount = Math.Min(resourceAmount - tradeChange, 1);
+            transportAmount.SetResource(resourceType, newAmount);
         }
 
-        public double GetTransportAmount(ResourceType resourceType)
+        public double GetTransportAmount(ResourceTypes.ResourceType resourceType)
         {
             return transportAmount.GetAmount(resourceType);
         }

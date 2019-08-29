@@ -3,31 +3,36 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Server\Application\" />
+    <Compile Remove="Server\Application\**" />
+    <EmbeddedResource Remove="Server\Application\**" />
+    <None Remove="Server\Application\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Server\Domain\model\ResourceSet\ExternalTrade\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="3.0.0-preview3-19115-03" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.0.0-preview3-19115-03" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0-preview3-19115-03" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview3.19128.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0-preview3.19128.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview3.19128.8" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0-preview6.19307.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview3.19153.1" />
+    <PackageReference Include="EFCore.BulkExtensions" Version="2.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="PresentationCore">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview3-27504-2\PresentationCore.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview6-27804-01\PresentationCore.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase">
-      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview3-27504-2\WindowsBase.dll</HintPath>
-    </Reference>
-
-    
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.0.0-preview6-27804-01\WindowsBase.dll</HintPath>
+    </Reference>    
   </ItemGroup>
 
 </Project>

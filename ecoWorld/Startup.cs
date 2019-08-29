@@ -7,28 +7,30 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Server.Infrastructure;
-
+using System.Threading.Tasks;
 
 namespace ecoPlanerWeb
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration) {
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services) {
+        public void ConfigureServices(IServiceCollection services)
+        {
             services.AddDbContext<EcoContext>(options =>
-       options.UseSqlServer(@"Server=DESKTOP-59G7R5N;Database=test;User Id=user3; Password=hej123Hej;"));
-
-
+       options.UseLazyLoadingProxies()
+       .UseSqlServer(Configuration.GetConnectionString("Desktop")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
-
+            services.AddControllers();
             // In production, the React files will be served from this directory
-            services.AddSpaStaticFiles(configuration => {
+            services.AddSpaStaticFiles(configuration =>
+            {
                 configuration.RootPath = "ClientApp/build";
             });
 
@@ -36,21 +38,25 @@ namespace ecoPlanerWeb
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
             app.UseDeveloperExceptionPage();
             InitDataBase.InitDB(app.ApplicationServices);
-
+            var task = new Task(() => Loop.Init(app.ApplicationServices), TaskCreationOptions.LongRunning);
+            task.Start();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
 
-            app.UseMvc(routes => {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller}/{action=Index}/{id?}");
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                // Mapping of endpoints goes here:
+                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
 
-            app.UseSpa(spa => {
+            app.UseSpa(spa =>
+            {
                 spa.Options.SourcePath = "ClientApp";
                 spa.UseReactDevelopmentServer(npmScript: "start");
 

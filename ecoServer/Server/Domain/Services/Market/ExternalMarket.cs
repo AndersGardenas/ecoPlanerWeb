@@ -9,10 +9,10 @@ namespace econoomic_planer_X.Market
     public class ExternalMarket
     {
 
-        public Guid Id { get; set; }
-        [ForeignKey("Standard")]
+        public int Id { get; set; }
+        [ForeignKey("ExternalMarketRegion")]
 
-        public Region Ownregion { get; set; }
+        public virtual Region Ownregion { get; set; }
 
         public virtual List<TradeRegion> TradeRegions { get; set; }
         public virtual List<ExternatlTradingResource> ExternatlTradingResources { get; set; }
@@ -20,19 +20,23 @@ namespace econoomic_planer_X.Market
 
         public ExternalMarket()
         {
-            ExternatlTradingResources = new List<ExternatlTradingResource>();
-            NewExternatlTradingResources = new List<ExternatlTradingResource>();
         }
 
-        public ExternalMarket(Region Ownregion, List<NeighbourRegion> BorderRegions): base ()
+        public ExternalMarket(Region Ownregion) : this()
         {
+            ExternatlTradingResources = new List<ExternatlTradingResource>();
+            NewExternatlTradingResources = new List<ExternatlTradingResource>();
             TradeRegions = new List<TradeRegion>();
+            this.Ownregion = Ownregion;
+        }
+
+        public void SetNeighbors(List<NeighbourRegion> BorderRegions)
+        {
             foreach (NeighbourRegion region in BorderRegions)
             {
-                Region tempRegion = region.OwnRegion  == Ownregion ? region.NeighbouringRegion : region.OwnRegion;
+                Region tempRegion = region.OwnRegion == Ownregion ? region.NeighbouringRegion : region.OwnRegion;
                 TradeRegions.Add(new TradeRegion(tempRegion));
             }
-            this.Ownregion = Ownregion;
         }
 
         public void AddNeighbour(Region region)
@@ -41,16 +45,16 @@ namespace econoomic_planer_X.Market
         }
 
 
-        public double GetBestCost(ResourceType resourceType, out TradeRegion bestRegion)
+        public double GetBestCost(ResourceTypes.ResourceType resourceType, out TradeRegion bestRegion)
         {
             double bestCost = 0;
             bestRegion = null;
-            double regionalTransportCost = Ownregion.GetTransportCost() / 2;
+            double regionalTransportCost = Ownregion.GetTransportCost();
 
             foreach (TradeRegion tradeRegion in TradeRegions)
             {
-                double externalTransportCost = tradeRegion.GetTransportCost() / 2;
-                double totalTransportCost = regionalTransportCost + externalTransportCost;
+                double externalTransportCost = tradeRegion.GetTransportCost();
+                double totalTransportCost = (regionalTransportCost + externalTransportCost)/2;
                 double resourceCost = tradeRegion.GetResorceCost(resourceType);
                 double salesCost = resourceCost - totalTransportCost;
                 if (salesCost > bestCost)
@@ -62,12 +66,7 @@ namespace econoomic_planer_X.Market
             return bestCost;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="TradingResources"></param>
-        /// <param name="resourceType"></param>
-        public void DoExternalTrade(List<TradingResource> TradingResources, ResourceType resourceType)
+        public void DoExternalTrade(List<TradingResource> TradingResources, ResourceTypes.ResourceType resourceType)
         {
             foreach (TradeRegion tradeRegion in TradeRegions)
             {
@@ -87,7 +86,7 @@ namespace econoomic_planer_X.Market
         }
 
 
-        public void IncreaseTradeWith(ResourceType resourceType, TradeRegion destination,double priceRatio)
+        public void IncreaseTradeWith(ResourceTypes.ResourceType resourceType, TradeRegion destination, double priceRatio)
         {
             foreach (TradeRegion tradeRegion in TradeRegions)
             {
@@ -102,8 +101,7 @@ namespace econoomic_planer_X.Market
             }
         }
 
-
-        public void UpdateTrade(List<TradingResources> TradingResources)
+        public void UpdateTrade(TradingResources[] TradingResources)
         {
             foreach (ExternatlTradingResource tradingResounce in ExternatlTradingResources)
             {
@@ -112,7 +110,8 @@ namespace econoomic_planer_X.Market
                 {
                     if (tradingResounce.getDestination().Id == Id)
                     {
-                        TradingResources[tradingResounce.ResourceType.Id].Add(tradingResounce);
+                       // TradingResources.Find(tr => tr.ResourceType.Equals(tradingResounce.ResourceType)).Add(tradingResounce);
+                          TradingResources[(int)tradingResounce.ResourceType].Add(tradingResounce);
                     }
                     else
                     {
@@ -122,7 +121,6 @@ namespace econoomic_planer_X.Market
             }
             ExternatlTradingResources.RemoveAll(ex => ex.AtDestination());
         }
-
 
         private void AddResource(ExternatlTradingResource tradingResounce)
         {

@@ -6,15 +6,14 @@ namespace econoomic_planer_X.ResourceSet
     public class TradingResource : Resource, IComparable, IEquatable<TradingResource>
     {
 
-        public Population Owner { get; set; }
+        public virtual Population Owner { get; set; }
 
         public TradingResource() { }
 
-        public TradingResource(Population Owner, ResourceType resourceType, double Amount) : base(resourceType, Amount)
+        public TradingResource(Population Owner, ResourceTypes.ResourceType resourceType, double Amount) : base(resourceType, Amount)
         {
             this.Owner = Owner;
         }
-
 
         public ExternatlTradingResource SplitExternal(double ratio, ExternalMarket destination, double localTravelTime)
         {
@@ -28,9 +27,9 @@ namespace econoomic_planer_X.ResourceSet
             return Owner.AffordTransport();
         }
 
-        public void Trade(double ratio, double price)
+        public void Trade(double ratio, double price, ResourceTypes.ResourceType resourceType)
         {
-            Owner.TradeGain(ratio * Amount * price);
+            Owner.Trade(ratio * Amount * price, new PrimitivResource(resourceType, -ratio * Amount));
             Amount -= ratio * Amount;
         }
 
@@ -41,7 +40,7 @@ namespace econoomic_planer_X.ResourceSet
 
         public int CompareTo(TradingResource tr)
         {
-            if (Owner.ID.CompareTo(tr.Owner.ID) == 0 && ResourceType.Id == tr.ResourceType.Id)
+            if (Owner.ID.CompareTo(tr.Owner.ID) == 0 && ResourceType.Equals(tr.ResourceType))
             {
                 return 0;
             }
@@ -55,7 +54,7 @@ namespace econoomic_planer_X.ResourceSet
 
         internal void Add(TradingResource su)
         {
-            this.Amount += su.Amount;
+            Amount += su.Amount;
         }
 
         public bool Equals(TradingResource other)

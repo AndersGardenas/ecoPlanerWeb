@@ -7,28 +7,32 @@ namespace econoomic_planer_X.ResourceSet
     public class Resources : IEnumerable
     {
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public virtual List<Resource> resources { get; set; }
 
         public Resources()
         {
-            resources = new List<Resource>();
+        }
 
-            foreach (ResourceType resourceType in ResourceTypes.resourceTypes)
+        public Resources Init()
+        {
+            resources = new List<Resource>();
+            foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 resources.Add(new Resource(resourceType, 0));
             }
+            return this;
         }
 
-        public double GetAmount(ResourceType resourceType)
+        public double GetAmount(ResourceTypes.ResourceType resourceType)
         {
-            return resources[resourceType.Id].Amount;
+            return GetResource(resourceType).Amount;
         }
 
-        public void Adjust(Resource resource)
+        public void Adjust(PrimitivResource resource)
         {
-            resources[resource.ResourceType.Id].Adjust(resource.Amount);
+            GetResource(resource.ResourceType).Adjust(resource.Amount);
         }
 
 
@@ -42,19 +46,19 @@ namespace econoomic_planer_X.ResourceSet
             return GetEnumerator();
         }
 
-        public Resource GetResource(ResourceType producingType)
+        public Resource GetResource(ResourceTypes.ResourceType producingType)
         {
-            return resources[producingType.Id];
+            return resources.Find(r => r.ResourceType.Equals(producingType));
         }
 
-        public void SetResource(Resource resourceDemand)
+        public void SetResource(PrimitivResource resourceDemand)
         {
-            SetResource(resourceDemand.ResourceType,resourceDemand.Amount);
+            SetResource(resourceDemand.ResourceType, resourceDemand.Amount);
         }
 
-        public void SetResource(ResourceType resourceType, double amount)
+        public void SetResource(ResourceTypes.ResourceType resourceType, double amount)
         {
-            resources[resourceType.Id].Amount = amount;
+            GetResource(resourceType).Amount = amount;
         }
 
         public void Reset()
