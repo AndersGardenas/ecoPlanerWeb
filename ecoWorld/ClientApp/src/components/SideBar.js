@@ -34,7 +34,10 @@ export default class HelloMessage extends React.Component {
         axios(url).then(
             response => {
                 if (tmpContry === this.props.contry) {
-                    this.setState({ contryPop: response.data.split(",")[0], money: response.data.split(",")[1], price: response.data.split(",")[2], price2: response.data.split(",")[3]  });
+                    this.setState({
+                        contryPop: response.data.split("|")[0], money: response.data.split("|")[1],
+                        price: response.data.split("|")[2], price2: response.data.split("|")[3]
+                    });
                 }
             }
         );
@@ -47,8 +50,8 @@ export default class HelloMessage extends React.Component {
                 <p>Hello {this.props.contry} </p>
                 <p>Populations is: {nFormatter(this.state.contryPop,2)}</p>
                 <p>Money is: {nFormatter(this.state.money,2)}</p>
-                <p>: {this.state.price}</p>
-                <p>: {this.state.price2}</p>
+                <p>{this.state.price}</p>
+                <p>{this.state.price2}</p>
             </div>
         );
     }

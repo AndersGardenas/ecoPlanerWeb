@@ -9,15 +9,20 @@ namespace ecoServer.Server.Domain.Services.Market
     {
         public int ID { get; set; }
         public virtual Region Region { get; set; }
-        private readonly Resources transportAmount;
-        private readonly double tradeChange = 0.05;
+        public int ResourcesId { get; set; }
+        public virtual Resources transportAmount { get; set; }
+        private readonly double tradeChange = 0.01;
 
         public TradeRegion() { }
 
         public TradeRegion(Region region)
         {
-            transportAmount = new Resources().Init();
             Region = region;
+        }
+
+        public void Init()
+        {
+            transportAmount = new Resources().Init();
         }
 
         public double GetTransportCost()
@@ -32,7 +37,7 @@ namespace ecoServer.Server.Domain.Services.Market
 
         public ExternalMarket GetExternalMarket()
         {
-            return Region.GetExternalMarket();
+            return Region.ExternalMarket;
         }
 
         public void IncreaseTrade(ResourceTypes.ResourceType resourceType)
@@ -43,10 +48,14 @@ namespace ecoServer.Server.Domain.Services.Market
 
         public void DecreseTrade(ResourceTypes.ResourceType resourceType)
         {
+            if (transportAmount.ResoucreExist(resourceType) == false)
+            {
+                return;
+            }
             double resourceAmount = transportAmount.GetResource(resourceType).Amount;
             if (resourceAmount == 0) return;
 
-            double newAmount = Math.Min(resourceAmount - tradeChange, 1);
+            double newAmount = Math.Max(resourceAmount - tradeChange, 0);
             transportAmount.SetResource(resourceType, newAmount);
         }
 

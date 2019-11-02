@@ -11,7 +11,7 @@ namespace econoomic_planer_X.ResourceSet
 
         public static int TotalAmount()
         {
-            return ResourceType.GetNames(typeof(ResourceType)).Length;
+            return Enum.GetNames(typeof(ResourceType)).Length;
         }
 
         public static ResourceType[] GetIterator()

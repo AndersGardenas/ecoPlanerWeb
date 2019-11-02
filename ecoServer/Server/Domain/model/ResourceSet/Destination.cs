@@ -1,5 +1,4 @@
 ﻿using econoomic_planer_X.Market;
-using System;
 
 namespace Server.Server.Domain.model.ResourceSet
 {
@@ -26,7 +25,5 @@ namespace Server.Server.Domain.model.ResourceSet
         {
             return DaysRemaning <= 0;
         }
-
-
     }
 }

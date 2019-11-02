@@ -1,17 +1,15 @@
-﻿
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace econoomic_planer_X
 {
     public class NeighbourRegion
     {
-
         public int Id { get; set; }
 
-        [Key]
+        [InverseProperty("OwnRegion")]
+
         public virtual Region OwnRegion { get; set; }
-        [Key]
+        [InverseProperty("NeighbouringRegion")]
         public virtual Region NeighbouringRegion { get; set; }
 
         public NeighbourRegion()
@@ -20,7 +18,7 @@ namespace econoomic_planer_X
 
         public NeighbourRegion(Region OwnRegion, Region NeighbouringRegion)
         {
-            if (OwnRegion.ID.CompareTo(NeighbouringRegion.ID) > 0)
+            if (OwnRegion.regionID > NeighbouringRegion.regionID)
             {
                 this.OwnRegion = OwnRegion;
                 this.NeighbouringRegion = NeighbouringRegion;

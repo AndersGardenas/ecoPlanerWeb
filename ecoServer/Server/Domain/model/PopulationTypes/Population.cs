@@ -2,7 +2,6 @@
 using econoomic_planer_X.PopulationTypes;
 using econoomic_planer_X.ResourceSet;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace econoomic_planer_X
 {
@@ -10,15 +9,15 @@ namespace econoomic_planer_X
     {
 
         public virtual ResourceTypes.ResourceType ProducingType { get; set; }
+        public int ResourcesId { get; set; }
         public virtual Resources Stock { get; set; }
         public double Money { get; set; }
         public const double startMoney = 5;
         double selling = 0;
         public int ID { get; set; }
         public double PopLevel { get; set; }
-        public double FoodLevel { get; set; }
+        private double FoodLevel;
 
-        [ForeignKey("Standard")]
         public int RegionID { get; set; }
         public virtual Region Region { get; set; }
 
@@ -26,14 +25,19 @@ namespace econoomic_planer_X
 
         public Population(int Amount, ResourceTypes.ResourceType producingType)
         {
-            Stock = new Resources().Init();
             SetPopLevel(Amount);
             Money = Amount * startMoney;
-            this.ProducingType = producingType;
+            ProducingType = producingType;
+        }
+
+        public Population Init()
+        {
+            Stock = new Resources().Init();
+            return this;
         }
 
 
-        public double GetPopLevel()
+        public double GetIntegerPopLevel()
         {
             return (int)PopLevel;
         }
@@ -55,8 +59,11 @@ namespace econoomic_planer_X
 
         public void Trade(double money, PrimitivResource resource)
         {
+            if (ID == 0){
+                int stop = 0;
+            }
             Money += money;
-            Stock.Adjust(resource);
+            //Stock.Adjust(resource);
         }
 
 
@@ -100,7 +107,7 @@ namespace econoomic_planer_X
         public double UpdatePopulation()
         {
             Consume();
-            double popChange = GetPopLevel() * (FoodLevel - 0.5) / 100;
+            double popChange = GetIntegerPopLevel() * (FoodLevel - 0.5) / 10000;
             if (popChange < 0)
             {
                 ChangePop(popChange);
@@ -109,23 +116,18 @@ namespace econoomic_planer_X
             return popChange;
         }
 
-        public double SellingAmount()
+        public double AddToMarket()
         {
+            Stock.Adjust(new PrimitivResource(ProducingType, -selling));
             return selling;
         }
 
 
-        public Resource Selling()
-        {
-            double stockAmount = Stock.GetAmount(ProducingType);
-            Stock.SetResource(new PrimitivResource(ProducingType, 0));
-            return new Resource(ProducingType, stockAmount);
-        }
-
         public void Produce()
         {
-            double produce = GetPopLevel() * GetEfficensy();
+            double produce = GetIntegerPopLevel() * GetEfficensy();
             var resource = new PrimitivResource(ProducingType, produce);
+
             Stock.Adjust(resource);
             selling = Stock.GetAmount(ProducingType);
         }
@@ -133,7 +135,15 @@ namespace econoomic_planer_X
         public void BuyAmount(double ratio, double price, ResourceTypes.ResourceType resourceType)
         {
             double buyAmount = Demand.GetDemand(resourceType) * ratio;
+            if (buyAmount == 0)
+            {
+                return;
+            }
             Stock.Adjust(new PrimitivResource(resourceType, buyAmount));
+            if (ID == 0)
+            {
+                int stop = 0;
+            }
             Money -= buyAmount * price;
         }
     }

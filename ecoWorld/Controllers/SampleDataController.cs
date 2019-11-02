@@ -12,11 +12,11 @@ namespace ecoPlanerWeb.Controllers
     [Route("api/[controller]")]
     public class SampleDataController : Controller
     {
-        protected EcoContext context;
+        protected EcoContext Context { get; set; }
 
         public SampleDataController(EcoContext context)
         {
-            this.context = context;
+            Context = context;
         }
 
         [HttpGet("[action]")]
@@ -26,31 +26,28 @@ namespace ecoPlanerWeb.Controllers
             {
                 return NotFound();
             }
-            int contryId = context.Contry.First(c => c.Name.Equals(name)).ID;
-            IQueryable<Region> regions = context.Region.Where(r => r.ContryID == contryId);
+            int contryId = Context.Contry.First(c => c.Name.Equals(name)).ID;
+            IQueryable<Region> regions = Context.Region.Where(r => r.ContryID == contryId);
             Region region =  regions.FirstOrDefault();
             if (region == null)
             {
                 return NotFound();
             }
-            IQueryable<Population> populations = context.Population.Where(p => regions.Any(r => r.ID == p.RegionID));
+            IQueryable<Population> populations = Context.Population.Where(p => regions.Any(r => r.regionID == p.RegionID));
 
-            string toSend = populations.Sum(p => p.PopLevel).ToString();
-            toSend += "," + populations.Sum(p => p.Money).ToString();
-            var resData = context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarket.Id).ToList();
-            toSend += "," + resData[0].ResourceType.ToString() + " " + resData[0].ResourcesPrice;
-            toSend += "," + resData[1].ResourceType.ToString() + " " + resData[1].ResourcesPrice;
-            //foreach (ResourceData r in  regions.FirstOrDefault().InternalMarket.ResourceData)
-            //{
-            //    toSend += " " + r.Id + " " +  r.ResourcesPrice.ToString();
-            //}
+            var toSend = ((long)populations.Sum(p => p.PopLevel)).ToString();
+            toSend += "|" + ((long)populations.Sum(p => p.Money)).ToString();
+            var resData = Context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarketId).ToList();
+            toSend += "|" + resData[0].ResourceType.ToString() + " " + resData[0].ResourcesPrice;
+            toSend += "|" + resData[1].ResourceType.ToString() + " " + resData[1].ResourcesPrice;
+
             return Ok(toSend);
         }
 
         [HttpGet("[action]")]
         public ActionResult<IEnumerable<Region>> GetAllContry()
         {
-            IEnumerable<Region> regions = context.Region;
+            IEnumerable<Region> regions = Context.Region;
             return Ok(regions);
         }
     }

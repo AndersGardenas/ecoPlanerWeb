@@ -1,12 +1,10 @@
-﻿using System;
-
-namespace econoomic_planer_X.ResourceSet
+﻿namespace econoomic_planer_X.ResourceSet
 {
 
 
     public class Resource
     {
-        public int Id { get; set; }
+        public int ResourceId { get; set; }
 
         public virtual ResourceTypes.ResourceType ResourceType { get; set; }
         public double Amount { get; set; }

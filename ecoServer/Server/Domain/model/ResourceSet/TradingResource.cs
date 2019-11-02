@@ -1,17 +1,25 @@
 ﻿using econoomic_planer_X.Market;
-using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace econoomic_planer_X.ResourceSet
 {
-    public class TradingResource : Resource, IComparable, IEquatable<TradingResource>
+    public class TradingResource: IComparer<TradingResource>
     {
-
+        public int TradingResourceId { get; set; }
         public virtual Population Owner { get; set; }
+
+        public virtual ResourceTypes.ResourceType ResourceType { get; set; }
+        public double Amount { get; set; }
+
 
         public TradingResource() { }
 
-        public TradingResource(Population Owner, ResourceTypes.ResourceType resourceType, double Amount) : base(resourceType, Amount)
+
+        public TradingResource(Population Owner, ResourceTypes.ResourceType resourceType, double Amount)
         {
+            ResourceType = resourceType;
+            this.Amount = Amount;
             this.Owner = Owner;
         }
 
@@ -19,12 +27,12 @@ namespace econoomic_planer_X.ResourceSet
         {
             double splitAmount = Amount * ratio;
             Amount -= splitAmount;
-            return new ExternatlTradingResource(Owner, ResourceType, destination, splitAmount, localTravelTime);
+            return new ExternatlTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
         }
 
-        public bool AffordTransport()
+        public bool AffordTransport(double tradeRegionRatio, double amount)
         {
-            return Owner.AffordTransport();
+            return (tradeRegionRatio * amount > Owner.GetIntegerPopLevel() * 0.1) && Owner.AffordTransport();
         }
 
         public void Trade(double ratio, double price, ResourceTypes.ResourceType resourceType)
@@ -33,23 +41,24 @@ namespace econoomic_planer_X.ResourceSet
             Amount -= ratio * Amount;
         }
 
+
+
         public bool Empty()
         {
-            return Amount <= 0;
+            if (Amount <= 0)
+            {
+                Owner = null;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public int CompareTo(TradingResource tr)
         {
-            if (Owner.ID.CompareTo(tr.Owner.ID) == 0 && ResourceType.Equals(tr.ResourceType))
-            {
-                return 0;
-            }
-            return -1;
-        }
-
-        public int CompareTo(object obj)
-        {
-            return CompareTo((TradingResource)obj);
+            return Amount.CompareTo(tr.Amount);
         }
 
         internal void Add(TradingResource su)
@@ -57,14 +66,15 @@ namespace econoomic_planer_X.ResourceSet
             Amount += su.Amount;
         }
 
-        public bool Equals(TradingResource other)
+        public bool Adjust(double value)
         {
-            return CompareTo(other) == 0;
+            Amount += value;
+            return value >= 0;
         }
 
-        internal ExternatlTradingResource SplitExternal(double ratio, object getExternalMarket, double v)
+        public int Compare([AllowNull] TradingResource x, [AllowNull] TradingResource y)
         {
-            throw new NotImplementedException();
+            return  x.CompareTo(y);
         }
     }
 }

@@ -8,6 +8,8 @@ namespace econoomic_planer_X.PopulationTypes
 {
     public static class Demand
     {
+        private const double minemumDemand = 0.01;
+
         public static string[] AmountNeeded { get; set; }
         public static string[] LifeValues { get; set; }
         public static PrimitivResource[] ResourceDemand { get; set; }
@@ -81,7 +83,11 @@ namespace econoomic_planer_X.PopulationTypes
             {
                 ResourceTypes.ResourceType resourceType = resoucreTypeRatio.Key;
                 double price = market.GetPrice(resourceType);
-                double buyAmount = Math.Min(money / price, population.GetPopLevel() * GetAmountNeeded(resourceType));
+                double buyAmount = Math.Min(money / price, population.GetIntegerPopLevel() * GetAmountNeeded(resourceType));
+                if (buyAmount < minemumDemand)
+                {
+                    continue;
+                }
                 ResourceDemand[(int)resourceType].Amount = buyAmount;
                 money -= buyAmount * price;
                 if (money <= 0)
