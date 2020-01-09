@@ -1,4 +1,5 @@
 
+using ecoServer.Server.Domain.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ namespace ecoPlanerWeb
             {
                 configuration.RootPath = "ClientApp/build";
             });
-
+            services.AddTransient<ContryService>();
 
         }
 

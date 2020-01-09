@@ -31,6 +31,11 @@ namespace Server.Server.Infrastructure
             //builder.Entity<ExternatlTradingResource>().ToTable("ExternatlTradingResource");
             builder.Entity<ResourceData>().HasIndex(re => re.ResourceType);
 
+            //builder.Entity<TradingResources>().HasOne(r => r.InternalMarket).WithMany(r => r.Supply).HasForeignKey(r => r.InternalMarketFK).OnDelete(DeleteBehavior.Cascade);
+            //builder.Entity<TradingResources>().HasOne(r => r.InternalMarket2).WithMany(r => r.ExternalSupply).HasForeignKey(r => r.InternalMarketFK2).OnDelete(DeleteBehavior.Cascade);
+            //    .HasForeignKey(r => r.InternalMarketFK).HasMany(m => m.ExternalSupply).WithOne(r => r.InternalMarket2).HasForeignKey(r => r.InternalMarketFK2);
+            //builder.Entity<InternalMarket>().
+
 
 
             //builder.Entity<Region>().HasMany(nr => nr.Negbours)

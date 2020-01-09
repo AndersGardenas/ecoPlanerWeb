@@ -4,6 +4,7 @@ namespace econoomic_planer_X.ResourceSet
 {
     public class ResourceTypes
     {
+        static ResourceType[] types = (ResourceType[]) Enum.GetValues(typeof(ResourceType));
         public enum ResourceType
         {
             Fruit, Cloth
@@ -16,7 +17,7 @@ namespace econoomic_planer_X.ResourceSet
 
         public static ResourceType[] GetIterator()
         {
-            return (ResourceType[])Enum.GetValues(typeof(ResourceType));
+            return types;
         }
     }
 }

@@ -58,17 +58,16 @@ namespace econoomic_planer_X
             return this;
         }
 
-        private void AddNeighbour(NeighbourRegion neighbourRegion, Region neighbour)
+        private void AddNeighbour(Region neighbour)
         {
-            // Negbours.Add(neighbour);
             ExternalMarket.AddNeighbour(neighbour);
         }
 
         public void ConnectNeighbour(Region neighbour)
         {
-            var neighbourRegion = new NeighbourRegion(this, neighbour);
-            AddNeighbour(neighbourRegion, neighbour);
-            neighbour.AddNeighbour(neighbourRegion, this);
+            //var neighbourRegion = new NeighbourRegion(this, neighbour);
+            AddNeighbour(neighbour);
+            neighbour.AddNeighbour(this);
         }
 
         public List<Point> GetPolygon()

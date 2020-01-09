@@ -1,5 +1,6 @@
 ﻿using econoomic_planer_X.Market;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace econoomic_planer_X.ResourceSet
@@ -11,6 +12,11 @@ namespace econoomic_planer_X.ResourceSet
 
         public virtual ResourceTypes.ResourceType ResourceType { get; set; }
         public double Amount { get; set; }
+
+        [ForeignKey("TradingResources")]
+        public int? TradingResourcesID { get; set; }
+        [ForeignKey("ExternalTradingResources")]
+        public int? ExternalTradingResourcesID { get; set; }
 
 
         public TradingResource() { }

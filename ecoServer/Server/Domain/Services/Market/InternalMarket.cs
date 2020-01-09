@@ -31,12 +31,13 @@ namespace econoomic_planer_X.Market
             ResourceData = new List<ResourceData>();
             Supply = new List<TradingResources>();
             ExternalSupply = new List<TradingResources>();
-
+            int i = 0;
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 ResourceData.Add(new ResourceData(resourceType));
                 Supply.Add(new TradingResources(resourceType).Init());
                 ExternalSupply.Add(new TradingResources(resourceType).Init());
+                i++;
 
             }
         }
@@ -46,9 +47,9 @@ namespace econoomic_planer_X.Market
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 ComputeResourceRatio(resourceType);
-                //ComputeExternalTrade(resourceType, externalMarket);
+                ComputeExternalTrade(resourceType, externalMarket);
             }
-            //externalMarket.UpdateTrade(ExternalSupply);
+            externalMarket.UpdateTrade(ExternalSupply);
 
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
@@ -81,7 +82,7 @@ namespace econoomic_planer_X.Market
         {
             var supplyAmount = GetSupply(resourceType).TradingResourceList.Sum(su => su.Amount);
             supplyAmount += GetExternalSupply(resourceType).TradingResourceList.Sum(su => su.Amount);
-            SupplySum[(int)(resourceType)].Amount = supplyAmount;
+            SupplySum[(int)resourceType].Amount = supplyAmount;
             double demandAmount = Demand.GetAmount(resourceType);
             GetResourceData(resourceType).SetResourceRatio(ComputeResourceRatio(demandAmount, supplyAmount));
         }
@@ -106,7 +107,7 @@ namespace econoomic_planer_X.Market
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 var demmand = Demand.GetAmount(resourceType);
-                if (demmand == 0 || SupplySum[(int)(resourceType)].Amount == 0)
+                if (demmand == 0 || SupplySum[(int)resourceType].Amount == 0)
                 {
                     return;
                 }
@@ -117,33 +118,21 @@ namespace econoomic_planer_X.Market
                 double price = resoucreData.ResourcesPrice;
 
                 TradingResources supply = GetSupply(resourceType);
-                //supply.Sort();
-                //demmand = AutoTrade(supply, demmand, price, resourceType);
 
-                TradingResources exportSupply = GetSupply(resourceType);
-                //exportSupply.Sort();
-                //demmand = AutoTrade(exportSupply, demmand, price, resourceType);
+                TradingResources exportSupply = GetExternalSupply(resourceType);
 
 
                 double sellRatio = Math.Min(1, 1 / ComputeResourceRatio(demmand, SupplySum[(int)(resourceType)].Amount));
-                if (Math.Abs(demmand * buyRatio - SupplySum[(int)(resourceType)].Amount * sellRatio) > 1)
-                {
-                    int stop = 0;
-                }
+
                 foreach (Population pop in populations)
                 {
                     pop.BuyAmount(buyRatio, price, resourceType);
                 }
 
-                supply.TradingResourceList.ForEach(su => su.Trade(sellRatio, price, resourceType));
+                supply.TradingResourceList.ForEach(tr => tr.Trade(sellRatio, price, resourceType));
                 supply.TradingResourceList.RemoveAll(su => su.Empty());
 
-                double afterVall = supply.TradingResourceList.Sum(su => su.Amount);
-                if (Math.Abs(afterVall - SupplySum[(int)resourceType].Amount * (1 - sellRatio)) > 1)
-                {
-                    int stop = 0;
-                }
-                exportSupply.TradingResourceList.ForEach(su => su.Trade(sellRatio, price, resourceType)); 
+                exportSupply.TradingResourceList.ForEach(tr => tr.Trade(sellRatio, price, resourceType));
                 exportSupply.TradingResourceList.RemoveAll(su => su.Empty());
             }
         }
@@ -246,7 +235,7 @@ namespace econoomic_planer_X.Market
 
         private ResourceData GetResourceData(ResourceTypes.ResourceType resourceType)
         {
-            return ResourceData.Find(r => r.ResourceType.Equals(resourceType));
+            return ResourceData[(int)resourceType];
         }
 
     }

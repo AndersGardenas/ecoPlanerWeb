@@ -13,6 +13,7 @@ export default class App extends Component {
         super(props);
         this.state = { currentZoomLevel: zoomLevel };
         this.state = { contry: null };
+        this.state = { mapData: null };
         this.log = this.log.bind(this);
         this.renderCountries = this.renderCountries.bind(this);
         this.setColor = this.setColor.bind(this);
@@ -47,30 +48,93 @@ export default class App extends Component {
     renderCountries(countryGeoJson) {
         var features = countryGeoJson.features.length;
         var contries = [];
-        for (var i = 0; i < features; i++) {
-            var feature = countryGeoJson.features[i];
-            if (this.state.contry === feature.properties.admin) {
-                this.setColor('#00008B', contries, i, feature);
-            } else {
-                this.setColor('#1a1d62', contries, i, feature);
+        if (this.state.mapData !== null && this.state.mapData !== undefined) {
+            for (var i = 0; i < features; i++) {
+                var feature = countryGeoJson.features[i];
+
+                for (var c = 0; c < this.state.mapData.length - 1; c++) {
+                    var split = this.state.mapData[c].split(':');
+                    if (split[0] === feature.properties.admin) {
+                        this.setColor('#' + split[1] + '0000', contries, i, feature, 1);
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (i = 0; i < features; i++) {
+
+                feature = countryGeoJson.features[i];
+                if (this.state.contry === feature.properties.admin) {
+                    this.setColor('#00008B', contries, i, feature, 0.5);
+                } else {
+                    this.setColor('#1a1d62', contries, i, feature, 0.5);
+                }
             }
 
         }
         return contries;
     }
 
-    setColor(colorValue, contries, i, feature) {
+    setColor(colorValue, contries, i, feature, inputWeight) {
         let style3 = () => ({
-            color: colorValue, weight: 0.5
+            color: colorValue, weight: inputWeight
         });
         contries[i] = <GeoJSON data={feature} style={style3} key={'setColor' + i} />;
+    }
+
+    mapCallBack = (childData) => {
+        if (childData === null) {
+            this.setState({
+                mapData: null
+            });
+            return;
+        }
+        var contries = childData.split(";");
+        var max = 0;
+        var min = 100000000;
+        var totalt = 0;
+
+        for (var i = 0; i < contries.length - 1; i++) {
+            var num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
+            if (num < min) {
+                min = num;
+            }
+            if (num > max) {
+                max = num;
+            }
+            totalt += num;
+        }
+        avg = (avg + max) / 2;
+        var avg = totalt / contries.length;
+        var avgAdj = avg / 128;
+        var maxAdj = (max - avg) / 127;
+        for (i = 0; i < contries.length - 1; i++) {
+            var split = contries[i].split(':');
+
+            var name = split[0];
+            num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
+            var result;
+            if (num < avg) {
+                result = (num / avgAdj).toString(16).split(".")[0];
+            } else {
+                result = ((num - avg) / maxAdj + 128).toString(16).split(".")[0];
+            }
+            if (result.length === 1) {
+                result = "0" + result;
+            }
+
+            contries[i] = name + ":" + result;
+        }
+        this.setState({
+            mapData: contries
+        });
     }
 
     render() {
         return (
             <div className="row">
                 <div className="col-2">
-                    <SideBar contry={this.state.contry}  />
+                    <SideBar contry={this.state.contry} parentMapCallback={this.mapCallBack} />
                 </div>
                 <div className="col-10">
                     <Map
@@ -81,7 +145,7 @@ export default class App extends Component {
                         minZoom={minScrol}
                         onClick={this.log}
                         maxBounds={[[-90, -260], [90, 260]]}
-                    >    
+                    >
                         <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                             url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                             noWrap='false'

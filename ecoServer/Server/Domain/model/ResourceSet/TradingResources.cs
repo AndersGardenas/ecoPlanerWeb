@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using econoomic_planer_X.Market;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace econoomic_planer_X.ResourceSet
 {
@@ -41,6 +43,11 @@ namespace econoomic_planer_X.ResourceSet
         public void Add(TradingResource tradingResource)
         {
             TradingResourceList.Add(tradingResource);
+        }
+
+        public TradingResource Get(ResourceTypes.ResourceType producingType)
+        {
+            return TradingResourceList.Find(tr => tr.ResourceType == producingType);
         }
 
         internal int Count()

@@ -42,14 +42,14 @@ namespace ecoPlanerWeb
                 CleanUp(context);
                 context.BulkSaveChanges();
                 Console.WriteLine("Elapsed Commit ={0}", sw.Elapsed.TotalMilliseconds - time);
-                time = sw.Elapsed.TotalMilliseconds;
                 Thread.Sleep((int)Math.Max(1,1000 - (sw.Elapsed.TotalMilliseconds - startTime)));
+                time = sw.Elapsed.TotalMilliseconds;
             }
         }
         public static void CleanUp(EcoContext context)
         {
-            context.TradingResource.RemoveRange(context.TradingResource.Where(r => r.Owner == null));
-            //context.ExternalTradingResources.RemoveRange(context.TradingResource.Where(r => r.Owner == null));
+            context.TradingResource.RemoveRange(context.TradingResource.Where(r => r.TradingResourcesID == null && r.ExternalTradingResourcesID == null));
+            context.Destination.RemoveRange(context.Destination.Where(d => d.DaysRemaning <= 0));
         }
     }
 

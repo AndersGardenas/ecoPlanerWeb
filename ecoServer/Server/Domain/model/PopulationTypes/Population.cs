@@ -59,11 +59,8 @@ namespace econoomic_planer_X
 
         public void Trade(double money, PrimitivResource resource)
         {
-            if (ID == 0){
-                int stop = 0;
-            }
             Money += money;
-            //Stock.Adjust(resource);
+            Stock.Adjust(resource);
         }
 
 
@@ -92,6 +89,11 @@ namespace econoomic_planer_X
                 }
 
                 double amountInStock = Stock.GetAmount(resourceType);
+
+                if (amountInStock == 0)
+                {
+                    continue;
+                }
 
                 double ratio = Math.Min(1, amountInStock / neededAmount);
                 FoodLevel += ratio * Demand.GetLifeValueAdjusted(resourceType);
@@ -140,10 +142,6 @@ namespace econoomic_planer_X
                 return;
             }
             Stock.Adjust(new PrimitivResource(resourceType, buyAmount));
-            if (ID == 0)
-            {
-                int stop = 0;
-            }
             Money -= buyAmount * price;
         }
     }

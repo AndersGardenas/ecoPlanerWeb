@@ -1,5 +1,6 @@
 using econoomic_planer_X;
 using econoomic_planer_X.Market;
+using ecoServer.Server.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
 using Server.Server.Domain.model.ResourceSet;
 using Server.Server.Infrastructure;
@@ -13,27 +14,25 @@ namespace ecoPlanerWeb.Controllers
     public class SampleDataController : Controller
     {
         protected EcoContext Context { get; set; }
+        protected ContryService ContryService { get; set; }
 
-        public SampleDataController(EcoContext context)
+        public SampleDataController(EcoContext context, ContryService contryService)
         {
             Context = context;
+            ContryService = contryService;
         }
 
         [HttpGet("[action]")]
-        public IActionResult getContry(string name)
+        public IActionResult GetContry(string name)
         {
+            Region region;
+
             if (name == null)
             {
                 return NotFound();
             }
             int contryId = Context.Contry.First(c => c.Name.Equals(name)).ID;
-            IQueryable<Region> regions = Context.Region.Where(r => r.ContryID == contryId);
-            Region region =  regions.FirstOrDefault();
-            if (region == null)
-            {
-                return NotFound();
-            }
-            IQueryable<Population> populations = Context.Population.Where(p => regions.Any(r => r.regionID == p.RegionID));
+            IQueryable<Population> populations = ContryService.GetPopulationOfContry(contryId, out region);
 
             var toSend = ((long)populations.Sum(p => p.PopLevel)).ToString();
             toSend += "|" + ((long)populations.Sum(p => p.Money)).ToString();
@@ -45,10 +44,29 @@ namespace ecoPlanerWeb.Controllers
         }
 
         [HttpGet("[action]")]
-        public ActionResult<IEnumerable<Region>> GetAllContry()
+        public IActionResult GetAllContry()
         {
-            IEnumerable<Region> regions = Context.Region;
-            return Ok(regions);
+            List<string> contriesPop = ContryService.GetAllContryPop();
+            string result = "";
+            foreach(var contry in contriesPop)
+            {
+                result += contry + ";";
+            }
+            return Ok(result);
         }
+
+        [HttpGet("[action]")]
+        public IActionResult GetGDPContry()
+        {
+            List<string> contriesPop = ContryService.GetAllContryGDP();
+            string result = "";
+            foreach (var contry in contriesPop)
+            {
+                result += contry + ";";
+            }
+            return Ok(result);
+        }
+
+
     }
 }

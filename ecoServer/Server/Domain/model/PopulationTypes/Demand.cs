@@ -10,8 +10,8 @@ namespace econoomic_planer_X.PopulationTypes
     {
         private const double minemumDemand = 0.01;
 
-        public static string[] AmountNeeded { get; set; }
-        public static string[] LifeValues { get; set; }
+        public static double[] AmountNeeded { get; set; }
+        public static double[] LifeValues { get; set; }
         public static PrimitivResource[] ResourceDemand { get; set; }
         public static double TotalLifleValue { get; set; }
 
@@ -24,19 +24,20 @@ namespace econoomic_planer_X.PopulationTypes
                 ResourceDemand[(int)resourceType] = new PrimitivResource(resourceType, 0);
             }
 
-            AmountNeeded = new string[Resource.ResourceTypeSize()];
-            LifeValues = new string[Resource.ResourceTypeSize()];
+            AmountNeeded = new double[Resource.ResourceTypeSize()];
+            LifeValues = new double[Resource.ResourceTypeSize()];
+            double lifeValueFruit = 100;
+            double lifeValueCloth = 10;
+            TotalLifleValue = lifeValueFruit + lifeValueCloth;
 
+            SetDemand(ResourceTypes.ResourceType.Fruit, 1, lifeValueFruit / TotalLifleValue);
+            SetDemand(ResourceTypes.ResourceType.Cloth, 1, lifeValueCloth / TotalLifleValue);
 
-            SetDemand(ResourceTypes.ResourceType.Fruit, 1, 100);
-            SetDemand(ResourceTypes.ResourceType.Cloth, 1, 10);
-
-            TotalLifleValue = 100 + 10;
         }
 
         public static double GetLifeValueAdjusted(ResourceTypes.ResourceType resourceType)
         {
-            return Convert.ToDouble(LifeValues[(int)resourceType]) / TotalLifleValue;
+            return LifeValues[(int)resourceType];
         }
 
         public static double GetAmountNeeded(ResourceTypes.ResourceType resourceType)
@@ -53,8 +54,8 @@ namespace econoomic_planer_X.PopulationTypes
 
         public static void SetDemand(ResourceTypes.ResourceType resourceType, double amountNeeded, double lifeValue)
         {
-            AmountNeeded[(int)resourceType] = amountNeeded.ToString();
-            LifeValues[(int)resourceType] = lifeValue.ToString();
+            AmountNeeded[(int)resourceType] = amountNeeded;
+            LifeValues[(int)resourceType] = lifeValue;
         }
 
         public static void UpdateDemand(InternalMarket market, Population population)

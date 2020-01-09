@@ -8,7 +8,12 @@ export default class HelloMessage extends React.Component {
         this.state = { money: 0 };
         this.state = { price: 0 };
         this.state = { price2: 0 };
+        this.state = { map: "" };
         this.requestGetContry = this.requestGetContry.bind(this);
+        this.requestGetAllContries = this.requestGetAllContries.bind(this);
+        this.renderMap = this.renderMap.bind(this);
+        this.popMapButton = this.popMapButton.bind(this);
+        this.gdpMapButton = this.gdpMapButton.bind(this);
     }
 
     componentDidMount() {
@@ -25,12 +30,13 @@ export default class HelloMessage extends React.Component {
         clearInterval(this.interval);
     }
 
+
     async requestGetContry() {
-        if (this.props.contry === null) {
+        if (this.props.contry === null || this.props.contry === undefined) {
             return;
         }
         var tmpContry = this.props.contry;
-        const url = `api/SampleData/getContry?name=${this.props.contry}`;
+        const url = `api/SampleData/GetContry?name=${this.props.contry}`;
         axios(url).then(
             response => {
                 if (tmpContry === this.props.contry) {
@@ -43,13 +49,56 @@ export default class HelloMessage extends React.Component {
         );
     }
 
+    async requestGetAllContries() {
+        const url = `api/SampleData/GetAllContry`;
+        axios(url).then(
+            response => {
+                this.props.parentMapCallback(response.data);
+            }
+        );
+    }
+
+    async requestGetAllContriesGDP() {
+        const url = `api/SampleData/GetGDPContry`;
+        axios(url).then(
+            response => {
+                this.props.parentMapCallback(response.data);
+            }
+        );
+    }
+
+    async renderMap(mapType) {
+        if (this.state.map === mapType) {
+            this.setState({ map: "" });
+            this.props.parentMapCallback(null);
+            return;
+        }
+        this.setState({ map: mapType });
+
+        if (mapType === 'population') {
+            this.requestGetAllContries();
+        } else if (mapType === 'GDP') {
+            this.requestGetAllContriesGDP();
+        }
+    }
+
+    async popMapButton() {
+        this.renderMap("population");
+    }
+
+    async gdpMapButton() {
+        this.renderMap("GDP");
+    }
+
     render() {
         return (
             <div>
-                <button type="button">Start</button>
-                <p>Hello {this.props.contry} </p>
-                <p>Populations is: {nFormatter(this.state.contryPop,2)}</p>
-                <p>Money is: {nFormatter(this.state.money,2)}</p>
+                <button onClick={this.popMapButton} type="button">PopMap</button><p/>
+                <button onClick={this.gdpMapButton} type="button">gdpMapButton</button>
+                <p>Map mode: {this.state.map} </p>
+                <p>Hello: {this.props.contry} </p>
+                <p>Populations is: {nFormatter(this.state.contryPop, 2)}</p>
+                <p>Money is: {nFormatter(this.state.money, 2)}</p>
                 <p>{this.state.price}</p>
                 <p>{this.state.price2}</p>
             </div>
