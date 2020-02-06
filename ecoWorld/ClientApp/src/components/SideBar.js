@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+const host = 'api/Map/';
 
 export default class HelloMessage extends React.Component {
     constructor(props) {
@@ -9,12 +10,15 @@ export default class HelloMessage extends React.Component {
         this.state = { price: 0 };
         this.state = { price2: 0 };
         this.state = { map: "" };
+        this.state = { arrowMap: "" };
         this.requestGetContry = this.requestGetContry.bind(this);
         this.requestGetAllContries = this.requestGetAllContries.bind(this);
         this.renderMap = this.renderMap.bind(this);
         this.popMapButton = this.popMapButton.bind(this);
         this.gdpMapButton = this.gdpMapButton.bind(this);
+        this.requestGetTradingPartner = this.requestGetTradingPartner.bind(this);
     }
+
 
     componentDidMount() {
         this.interval = setInterval(() => this.requestGetContry(), 500);
@@ -23,6 +27,7 @@ export default class HelloMessage extends React.Component {
     componentDidUpdate(prevProps) {
         if (prevProps.contry !== this.props.contry) {
             this.requestGetContry();
+            this.requestGetTradingPartner();
         }
     }
 
@@ -36,7 +41,7 @@ export default class HelloMessage extends React.Component {
             return;
         }
         var tmpContry = this.props.contry;
-        const url = `api/SampleData/GetContry?name=${this.props.contry}`;
+        const url = host + `GetContry?name=${this.props.contry}`;
         axios(url).then(
             response => {
                 if (tmpContry === this.props.contry) {
@@ -49,8 +54,41 @@ export default class HelloMessage extends React.Component {
         );
     }
 
+    async requestGetTradingPartner() {
+        if (this.props.contry === null || this.props.contry === undefined) {
+            return;
+        }
+        var tmpContry = this.props.contry;
+        const url = host + `GetTradingPartner?name=${this.props.contry}`;
+        axios(url).then(
+            response => {
+                console.log("data: " + response.data)
+                if (response.data === "") {
+                    return;
+                }
+                if (tmpContry === this.props.contry) {
+
+                    var home = response.data['home'];
+                    console.log("home " + home)
+
+                    var arrowList = [];
+                    for (var prop in response.data) {
+                        if (prop !== 'home') {
+                            var data = response.data[prop];
+                            arrowList.push([home.split('|')[1], home.split('|')[0]], [data.split('|')[1], data.split('|')[0]])
+                        }
+                    }
+                    this.setState({
+                        arrowMap: arrowList
+                    });
+                    this.props.parentArrowMapCallback(arrowList);
+                }
+            }
+        );
+    }
+
     async requestGetAllContries() {
-        const url = `api/SampleData/GetAllContry`;
+        const url = host + `GetAllContry`;
         axios(url).then(
             response => {
                 this.props.parentMapCallback(response.data);
@@ -59,7 +97,7 @@ export default class HelloMessage extends React.Component {
     }
 
     async requestGetAllContriesGDP() {
-        const url = `api/SampleData/GetGDPContry`;
+        const url = host + `GetGDPContry`;
         axios(url).then(
             response => {
                 this.props.parentMapCallback(response.data);
@@ -101,6 +139,7 @@ export default class HelloMessage extends React.Component {
                 <p>Money is: {nFormatter(this.state.money, 2)}</p>
                 <p>{this.state.price}</p>
                 <p>{this.state.price2}</p>
+                <p>Arrow map is: {this.state.arrowMap.toString()}</p>
             </div>
         );
     }

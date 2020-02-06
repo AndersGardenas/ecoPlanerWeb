@@ -6,6 +6,7 @@ using Server.Server.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 
@@ -16,10 +17,11 @@ namespace ecoPlanerWeb
     {
         public static void Init(IServiceProvider service)
         {
+            Init();
+
             using var serviceScope = service.CreateScope();
             var scopeServiceProvider = serviceScope.ServiceProvider;
             EcoContext context = scopeServiceProvider.GetService<EcoContext>();
-            Demand.Init();
             var sw = new Stopwatch();
             double time = 0;
             int iter = 0;
@@ -42,7 +44,7 @@ namespace ecoPlanerWeb
                 CleanUp(context);
                 context.BulkSaveChanges();
                 Console.WriteLine("Elapsed Commit ={0}", sw.Elapsed.TotalMilliseconds - time);
-                Thread.Sleep((int)Math.Max(1,1000 - (sw.Elapsed.TotalMilliseconds - startTime)));
+                Thread.Sleep((int)Math.Max(1, 1000 - (sw.Elapsed.TotalMilliseconds - startTime)));
                 time = sw.Elapsed.TotalMilliseconds;
             }
         }
@@ -50,6 +52,20 @@ namespace ecoPlanerWeb
         {
             context.TradingResource.RemoveRange(context.TradingResource.Where(r => r.TradingResourcesID == null && r.ExternalTradingResourcesID == null));
             context.Destination.RemoveRange(context.Destination.Where(d => d.DaysRemaning <= 0));
+        }
+
+        public static void Init()
+        {
+            string CultureName = Thread.CurrentThread.CurrentCulture.Name;
+            CultureInfo ci = new CultureInfo(CultureName);
+            if (ci.NumberFormat.NumberDecimalSeparator != ".")
+            {
+                // Forcing use of decimal separator for numerical values
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                Thread.CurrentThread.CurrentCulture = ci;
+            }
+            CultureInfo.CurrentCulture = new CultureInfo("en-GB", false);
+            Demand.Init();
         }
     }
 

@@ -3,7 +3,6 @@ using Server.Server.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace ecoServer.Server.Domain.Services
 {
@@ -31,10 +30,9 @@ namespace ecoServer.Server.Domain.Services
         public List<string> GetAllContryPop()
         {
             var contryInfo = new List<string>();
-            Region region;
             foreach (Contry contry in Context.Contry)
             {
-                IQueryable<Population> pop = GetPopulationOfContry(contry.ID, out region);
+                IQueryable<Population> pop = GetPopulationOfContry(contry.ID, out Region region);
                 contryInfo.Add(contry.Name + ":" + ((long)pop?.Sum(p => p.PopLevel)).ToString());
             }
             return contryInfo;
@@ -50,6 +48,15 @@ namespace ecoServer.Server.Domain.Services
                 return null;
             }
             return Context.Population.Where(p => regions.Any(r => r.regionID == p.RegionID));
+        }
+
+        public int? GetIdByName(string name)
+        {
+            if (name == null)
+            {
+                return null;
+            }
+            return Context.Contry.First(c => c.Name.Equals(name)).ID;
         }
     }
 }

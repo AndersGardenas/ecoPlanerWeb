@@ -4,5 +4,3 @@
 // a specific target and scoped to a namespace, type, member, etc.
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>", Scope = "member", Target = "~M:ecoPlanerWeb.GameLoop.Init(System.IServiceProvider)")]
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1305:Specify IFormatProvider", Justification = "<Pending>", Scope = "member", Target = "~M:ecoPlanerWeb.Controllers.SampleDataController.getContry(System.String)~Microsoft.AspNetCore.Mvc.IActionResult")]
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1307:Specify StringComparison", Justification = "<Pending>", Scope = "member", Target = "~M:ecoPlanerWeb.Controllers.SampleDataController.getContry(System.String)~Microsoft.AspNetCore.Mvc.IActionResult")]

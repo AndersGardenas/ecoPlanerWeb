@@ -6,7 +6,7 @@ namespace Server.Server.Domain.model.ResourceSet
     {
         public int Id { get; set; }
         public double DaysRemaning { get; set; }
-        public ExternalMarket MarketDestination { get; }
+        public virtual ExternalMarket MarketDestination { get; set;}
 
 
         public Destination() { }

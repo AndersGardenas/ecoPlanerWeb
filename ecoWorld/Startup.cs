@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Server.Server.Infrastructure;
+using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ecoPlanerWeb
@@ -38,6 +40,16 @@ namespace ecoPlanerWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string CultureName = Thread.CurrentThread.CurrentCulture.Name;
+            CultureInfo ci = new CultureInfo(CultureName);
+            if (ci.NumberFormat.NumberDecimalSeparator != ".")
+            {
+                // Forcing use of decimal separator for numerical values
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                Thread.CurrentThread.CurrentCulture = ci;
+            }
+
+
             services.AddDbContext<EcoContext>(options =>
                 options.UseLazyLoadingProxies().UseLoggerFactory(MyLoggerFactory)
                           .UseSqlServer(Configuration.GetConnectionString("Desktop")));
@@ -49,6 +61,7 @@ namespace ecoPlanerWeb
                 configuration.RootPath = "ClientApp/build";
             });
             services.AddTransient<ContryService>();
+            services.AddTransient<PopulationService>();
 
         }
 

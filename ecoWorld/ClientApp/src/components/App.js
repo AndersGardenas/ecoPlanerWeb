@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Map, TileLayer, GeoJSON } from 'react-leaflet';
 import SideBar from './SideBar';
+import LineMap from './LineMap';
+import "leaflet-polylinedecorator";
+import L from "leaflet";
 
 const mapCenter = [39.9528, -75.1638];
 const zoomLevel = 3;
@@ -8,12 +11,26 @@ const geojson = require('../custom.geo.json');
 const maxScrol = 8;
 const minScrol = 2;
 
+
+const arrow = [
+    {
+        offset: "100%",
+        repeat: 0,
+        symbol: L.Symbol.arrowHead({
+            pixelSize: 15,
+            polygon: false,
+            pathOptions: { stroke: true }
+        })
+    }
+];
+
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = { currentZoomLevel: zoomLevel };
         this.state = { contry: null };
         this.state = { mapData: null };
+        this.state = { arrowMap: [[[57, -19], [60, -12]], [[30, -120], [30, 0]]] };
         this.log = this.log.bind(this);
         this.renderCountries = this.renderCountries.bind(this);
         this.setColor = this.setColor.bind(this);
@@ -55,7 +72,7 @@ export default class App extends Component {
                 for (var c = 0; c < this.state.mapData.length - 1; c++) {
                     var split = this.state.mapData[c].split(':');
                     if (split[0] === feature.properties.admin) {
-                        this.setColor('#' + split[1] + '0000', contries, i, feature, 1);
+                        this.setColor('#00' + split[1] + '00', contries, i, feature, 1);
                         break;
                     }
                 }
@@ -80,6 +97,18 @@ export default class App extends Component {
             color: colorValue, weight: inputWeight
         });
         contries[i] = <GeoJSON data={feature} style={style3} key={'setColor' + i} />;
+    }
+
+    arrowMapCallBack = (childData) => {
+        if (childData === null) {
+            this.setState({
+                arrowMap: []
+            });
+        } else {
+            this.setState({
+                arrowMap: childData
+            });
+        }
     }
 
     mapCallBack = (childData) => {
@@ -134,7 +163,7 @@ export default class App extends Component {
         return (
             <div className="row">
                 <div className="col-2">
-                    <SideBar contry={this.state.contry} parentMapCallback={this.mapCallBack} />
+                    <SideBar contry={this.state.contry} parentMapCallback={this.mapCallBack} parentArrowMapCallback={this.arrowMapCallBack} />
                 </div>
                 <div className="col-10">
                     <Map
@@ -150,7 +179,7 @@ export default class App extends Component {
                             url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                             noWrap='false'
                         />
-
+                        <LineMap patterns={arrow} positions={this.state.arrowMap} />
                         {this.renderCountries(geojson)}
                     </Map>
                 </div>

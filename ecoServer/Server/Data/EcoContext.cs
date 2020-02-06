@@ -68,6 +68,7 @@ namespace Server.Server.Infrastructure
         public DbSet<TradingResource> TradingResource { get; set; }
         public DbSet<TradingResources> TradingResources { get; set; }
         public DbSet<ExternalTradingResources> ExternalTradingResources { get; set; }
+        public DbSet<ExternatlTradingResource> ExternatlTradingResource { get; set; }
 
         public DbSet<Contry> Contry { get; set; }
         public DbSet<Region> Region { get; set; }
