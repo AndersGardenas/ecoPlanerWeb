@@ -24,7 +24,7 @@ namespace Server.Server.Infrastructure
 
             var contries = new List<Contry>();
             Console.WriteLine("Hello World!");
-            using (StreamReader file = File.OpenText(@"C:\Users\Anders\Source\Repos\ecoPlanerWeb\ecoWorld\ClientApp\src\custom.geo.json"))
+            using (StreamReader file = File.OpenText(@"ClientApp\src\custom.geo.json"))
             {
                 var random = new Random();
                 using (var reader = new JsonTextReader(file))

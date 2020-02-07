@@ -34,13 +34,8 @@
     <None Remove="ClientApp\bundle.js" />
     <None Remove="ClientApp\package-lock.json" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="ClientApp\src\custom.geo.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Resources\" />
   </ItemGroup>
 
   <ItemGroup>

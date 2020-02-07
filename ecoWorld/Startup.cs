@@ -25,7 +25,7 @@ namespace ecoPlanerWeb
         {
             services.AddDbContext<EcoContext>(options =>
        options.UseLazyLoadingProxies()
-       .UseSqlServer(Configuration.GetConnectionString("Desktop")));
+       .UseSqlServer(Configuration.GetConnectionString("Laptop")));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             services.AddControllers();
             // In production, the React files will be served from this directory
