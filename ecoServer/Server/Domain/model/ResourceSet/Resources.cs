@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 
 namespace econoomic_planer_X.ResourceSet
@@ -7,7 +6,7 @@ namespace econoomic_planer_X.ResourceSet
     public class Resources : IEnumerable
     {
 
-        public int Id { get; set; }
+        public int ResourcesId { get; set; }
 
         public virtual List<Resource> resources { get; set; }
 
@@ -18,20 +17,18 @@ namespace econoomic_planer_X.ResourceSet
         public Resources Init()
         {
             resources = new List<Resource>();
-            foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
-            {
-                resources.Add(new Resource(resourceType, 0));
-            }
             return this;
         }
 
         public double GetAmount(ResourceTypes.ResourceType resourceType)
         {
+            if (ResoucreExist(resourceType) == false) return 0;
             return GetResource(resourceType).Amount;
         }
 
         public void Adjust(PrimitivResource resource)
         {
+            if (resource.Amount == 0) return;
             GetResource(resource.ResourceType).Adjust(resource.Amount);
         }
 
@@ -46,9 +43,21 @@ namespace econoomic_planer_X.ResourceSet
             return GetEnumerator();
         }
 
+        public bool ResoucreExist(ResourceTypes.ResourceType producingTyp)
+        {
+            return resources.Exists(r => r.ResourceType.Equals(producingTyp));
+        }
+
         public Resource GetResource(ResourceTypes.ResourceType producingType)
         {
-            return resources.Find(r => r.ResourceType.Equals(producingType));
+            Resource r = resources.Find(r => r.ResourceType.Equals(producingType));
+            if (r != null)
+            {
+                return r;
+            }
+            r = new Resource(producingType, 0);
+            resources.Add(r);
+            return r;
         }
 
         public void SetResource(PrimitivResource resourceDemand)

@@ -9,10 +9,15 @@ namespace econoomic_planer_X.ResourceSet
 
         public ExternatlTradingResource() { }
 
-        public ExternatlTradingResource(Population Owner, ResourceTypes.ResourceType resourceType, ExternalMarket destination, double Amount, double daysRemaning) :
+        public ExternatlTradingResource(Population Owner, ResourceTypes.ResourceType resourceType, double Amount) :
             base(Owner, resourceType, Amount)
         {
+        }
+
+        public ExternatlTradingResource Init(ExternalMarket destination, double daysRemaning)
+        {
             Destination = new Destination(destination, daysRemaning);
+            return this;
         }
 
         public ExternalMarket getDestination()
@@ -34,5 +39,20 @@ namespace econoomic_planer_X.ResourceSet
         {
             Destination.DaysRemaning = newTime;
         }
+
+        public new bool Empty()
+        {
+            if (Amount <= 0)
+            {
+                Destination = null;
+                Owner = null;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
     }
 }

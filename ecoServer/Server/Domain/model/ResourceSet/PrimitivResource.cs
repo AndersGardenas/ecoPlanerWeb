@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace econoomic_planer_X.ResourceSet
+﻿namespace econoomic_planer_X.ResourceSet
 {
 
 

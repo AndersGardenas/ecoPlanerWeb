@@ -1,5 +1,4 @@
 ﻿using econoomic_planer_X.Market;
-using System;
 
 namespace Server.Server.Domain.model.ResourceSet
 {
@@ -7,7 +6,7 @@ namespace Server.Server.Domain.model.ResourceSet
     {
         public int Id { get; set; }
         public double DaysRemaning { get; set; }
-        public ExternalMarket MarketDestination { get; }
+        public virtual ExternalMarket MarketDestination { get; set;}
 
 
         public Destination() { }
@@ -26,7 +25,5 @@ namespace Server.Server.Domain.model.ResourceSet
         {
             return DaysRemaning <= 0;
         }
-
-
     }
 }

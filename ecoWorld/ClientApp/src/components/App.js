@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { Map, TileLayer, GeoJSON } from 'react-leaflet';
 import SideBar from './SideBar';
+import LineMap from './LineMap';
+import "leaflet-polylinedecorator";
+import L from "leaflet";
 
 const mapCenter = [39.9528, -75.1638];
 const zoomLevel = 3;
@@ -8,11 +11,26 @@ const geojson = require('../custom.geo.json');
 const maxScrol = 8;
 const minScrol = 2;
 
+
+const arrow = [
+    {
+        offset: "100%",
+        repeat: 0,
+        symbol: L.Symbol.arrowHead({
+            pixelSize: 15,
+            polygon: false,
+            pathOptions: { stroke: true }
+        })
+    }
+];
+
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = { currentZoomLevel: zoomLevel };
         this.state = { contry: null };
+        this.state = { mapData: null };
+        this.state = { arrowMap: [[[57, -19], [60, -12]], [[30, -120], [30, 0]]] };
         this.log = this.log.bind(this);
         this.renderCountries = this.renderCountries.bind(this);
         this.setColor = this.setColor.bind(this);
@@ -47,30 +65,105 @@ export default class App extends Component {
     renderCountries(countryGeoJson) {
         var features = countryGeoJson.features.length;
         var contries = [];
-        for (var i = 0; i < features; i++) {
-            var feature = countryGeoJson.features[i];
-            if (this.state.contry === feature.properties.admin) {
-                this.setColor('#00008B', contries, i, feature);
-            } else {
-                this.setColor('#1a1d62', contries, i, feature);
+        if (this.state.mapData !== null && this.state.mapData !== undefined) {
+            for (var i = 0; i < features; i++) {
+                var feature = countryGeoJson.features[i];
+
+                for (var c = 0; c < this.state.mapData.length - 1; c++) {
+                    var split = this.state.mapData[c].split(':');
+                    if (split[0] === feature.properties.admin) {
+                        this.setColor('#00' + split[1] + '00', contries, i, feature, 1);
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (i = 0; i < features; i++) {
+
+                feature = countryGeoJson.features[i];
+                if (this.state.contry === feature.properties.admin) {
+                    this.setColor('#00008B', contries, i, feature, 0.5);
+                } else {
+                    this.setColor('#1a1d62', contries, i, feature, 0.5);
+                }
             }
 
         }
         return contries;
     }
 
-    setColor(colorValue, contries, i, feature) {
+    setColor(colorValue, contries, i, feature, inputWeight) {
         let style3 = () => ({
-            color: colorValue, weight: 0.5
+            color: colorValue, weight: inputWeight
         });
         contries[i] = <GeoJSON data={feature} style={style3} key={'setColor' + i} />;
+    }
+
+    arrowMapCallBack = (childData) => {
+        if (childData === null) {
+            this.setState({
+                arrowMap: []
+            });
+        } else {
+            this.setState({
+                arrowMap: childData
+            });
+        }
+    }
+
+    mapCallBack = (childData) => {
+        if (childData === null) {
+            this.setState({
+                mapData: null
+            });
+            return;
+        }
+        var contries = childData.split(";");
+        var max = 0;
+        var min = 100000000;
+        var totalt = 0;
+
+        for (var i = 0; i < contries.length - 1; i++) {
+            var num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
+            if (num < min) {
+                min = num;
+            }
+            if (num > max) {
+                max = num;
+            }
+            totalt += num;
+        }
+        avg = (avg + max) / 2;
+        var avg = totalt / contries.length;
+        var avgAdj = avg / 128;
+        var maxAdj = (max - avg) / 127;
+        for (i = 0; i < contries.length - 1; i++) {
+            var split = contries[i].split(':');
+
+            var name = split[0];
+            num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
+            var result;
+            if (num < avg) {
+                result = (num / avgAdj).toString(16).split(".")[0];
+            } else {
+                result = ((num - avg) / maxAdj + 128).toString(16).split(".")[0];
+            }
+            if (result.length === 1) {
+                result = "0" + result;
+            }
+
+            contries[i] = name + ":" + result;
+        }
+        this.setState({
+            mapData: contries
+        });
     }
 
     render() {
         return (
             <div className="row">
                 <div className="col-2">
-                    <SideBar contry={this.state.contry}  />
+                    <SideBar contry={this.state.contry} parentMapCallback={this.mapCallBack} parentArrowMapCallback={this.arrowMapCallBack} />
                 </div>
                 <div className="col-10">
                     <Map
@@ -81,12 +174,12 @@ export default class App extends Component {
                         minZoom={minScrol}
                         onClick={this.log}
                         maxBounds={[[-90, -260], [90, 260]]}
-                    >    
+                    >
                         <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                             url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                             noWrap='false'
                         />
-
+                        <LineMap patterns={arrow} positions={this.state.arrowMap} />
                         {this.renderCountries(geojson)}
                     </Map>
                 </div>

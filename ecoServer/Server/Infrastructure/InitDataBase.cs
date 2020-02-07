@@ -11,7 +11,7 @@ using System.Windows.Media;
 
 namespace Server.Server.Infrastructure
 {
-    public class InitDataBase
+    public static class InitDataBase
     {
         public static void InitDB(IServiceProvider service)
         {
@@ -41,27 +41,28 @@ namespace Server.Server.Infrastructure
                     }
                 }
             }
+            context.SaveChanges();
 
-            //for (int i = 0; i < contries.Count; i++)
-            //{
-            //    for (int j = i + 1; j < contries.Count; j++)
-            //    {
-            //        foreach (Region region1 in contries[i].Regions)
-            //        {
-            //            foreach (Region region2 in contries[j].Regions)
-            //            {
-            //                bool intersect = 10 > Math.Sqrt(Math.Pow(region1.CenterX - region2.CenterX, 2) + Math.Pow(region1.CenterY - region2.CenterY, 2));
-            //                //PointCollectionsOverlap_Fast(new PointCollection(region1.GetPolygon()), new PointCollection(region2.GetPolygon()));
+            for (int i = 0; i < contries.Count; i++)
+            {
+                foreach (Region region1 in contries[i].Regions)
+                {
+                    for (int j = i + 1; j < contries.Count; j++)
+                    {
+                        foreach (Region region2 in contries[j].Regions)
+                        {
+                            bool intersect = 5 > Math.Sqrt(Math.Pow(region1.CenterX - region2.CenterX, 2) + Math.Pow(region1.CenterY - region2.CenterY, 2));
+                            //PointCollectionsOverlap_Fast(new PointCollection(region1.GetPolygon()), new PointCollection(region2.GetPolygon()));
 
-            //                if (intersect)
-            //                {
-            //                    region1.ConnectNeighbour(region2);
-            //                }
+                            if (intersect)
+                            {
+                                region1.ConnectNeighbour(region2);
+                            }
 
-            //            }
-            //        }
-            //    }
-            //}
+                        }
+                    }
+                }
+            }
             context.SaveChanges();
         }
 
@@ -74,13 +75,7 @@ namespace Server.Server.Infrastructure
                 var regionGeo = new List<Point>();
                 if (regionsToken[0][0].Type is JTokenType.Float)
                 {
-                    foreach (JToken pointToken in regionsToken)
-                    {
-                        regionGeo.Add(new Point((float)pointToken[0], (float)pointToken[1]));
-                    }
-                    Point center = ComputeCenter(regionGeo);
-                    var region = new Region(true, Convert.ToInt32(token["properties"]["pop_est"]), regionGeo, center);
-                    contry.AddRegion(region);
+                    AddSingleRegionContry(token, contry, regionsToken, regionGeo);
                 }
                 else
                 {
@@ -95,11 +90,11 @@ namespace Server.Server.Infrastructure
                         if (first == true)
                         {
                             first = false;
-                            region = new Region(true, Convert.ToInt32(token["properties"]["pop_est"]), regionGeo, center);
+                            region = new Region(regionGeo, center).Init(Convert.ToInt32(token["properties"]["pop_est"]));
                         }
                         else
                         {
-                            region = new Region(true, random.Next(1000), regionGeo, center);
+                            region = new Region(regionGeo, center).Init(random.Next(1000));
                         }
                         contry.AddRegion(region);
                         regionGeo = new List<Point>();
@@ -108,6 +103,16 @@ namespace Server.Server.Infrastructure
             }
         }
 
+        private static void AddSingleRegionContry(JToken token, Contry contry, JToken regionsToken, List<Point> regionGeo)
+        {
+            foreach (JToken pointToken in regionsToken)
+            {
+                regionGeo.Add(new Point((float)pointToken[0], (float)pointToken[1]));
+            }
+            Point center = ComputeCenter(regionGeo);
+            var region = new Region(regionGeo, center).Init(Convert.ToInt32(token["properties"]["pop_est"]));
+            contry.AddRegion(region);
+        }
 
         public static Point ComputeCenter(List<Point> points)
         {
@@ -127,7 +132,7 @@ namespace Server.Server.Infrastructure
 
 
 
-        public static bool PointCollectionsOverlap_Fast(PointCollection area1, PointCollection area2)
+        public static bool PointCollectionsOverlapFast(PointCollection area1, PointCollection area2)
         {
             for (int i = 0; i < area1.Count; i++)
             {
