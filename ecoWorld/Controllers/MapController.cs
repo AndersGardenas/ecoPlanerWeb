@@ -10,6 +10,7 @@ using System.Text.Json;
 using System;
 using System.Threading;
 using System.Globalization;
+using Server.Server.Domain.model.ResourceSet;
 
 namespace ecoPlanerWeb.Controllers
 {
@@ -36,14 +37,27 @@ namespace ecoPlanerWeb.Controllers
                 return NotFound();
             }
             IQueryable<Population> populations = ContryService.GetPopulationOfContry(contryId.Value, out Region region);
-
-            var toSend = ((long)populations.Sum(p => p.PopLevel)).ToString();
-            toSend += "|" + ((long)populations.Sum(p => p.Money)).ToString();
             var resData = Context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarketId).ToList();
-            toSend += "|" + resData[0].ResourceType.ToString() + " " + resData[0].ResourcesPrice;
-            toSend += "|" + resData[1].ResourceType.ToString() + " " + resData[1].ResourcesPrice;
 
-            return Ok(toSend);
+            string json;
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new Utf8JsonWriter(stream))
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("populations", ((long)populations.Sum(p => p.PopLevel)).ToString());
+                    writer.WriteString("money", ((long)populations.Sum(p => p.Money)).ToString());
+
+                    foreach (ResourceData resourceData in resData)
+                    {
+                        writer.WriteString(resourceData.ResourceType.ToString(), resourceData.ResourcesPrice.ToString());
+                    }
+                    writer.WriteEndObject();
+                }
+                json = Encoding.UTF8.GetString(stream.ToArray());
+
+            }
+            return Ok(json);
         }
 
         [HttpGet("[action]")]

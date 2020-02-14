@@ -12,7 +12,7 @@ const maxScrol = 8;
 const minScrol = 2;
 
 
-const arrow = [
+var arrow = [
     {
         offset: "100%",
         repeat: 0,
@@ -105,6 +105,18 @@ export default class App extends Component {
                 arrowMap: []
             });
         } else {
+            arrow.remove();
+            arrow = [
+                {
+                    offset: "100%",
+                    repeat: 0,
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 15,
+                        polygon: false,
+                        pathOptions: { stroke: true }
+                    })
+                }
+            ];
             this.setState({
                 arrowMap: childData
             });
