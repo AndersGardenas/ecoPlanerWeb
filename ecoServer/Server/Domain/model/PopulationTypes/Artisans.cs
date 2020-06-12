@@ -6,7 +6,7 @@ namespace econoomic_planer_X.PopulationTypes
     {
         public Artisans() { }
 
-        public Artisans(int Amount, ResourceTypes.ResourceType producingType) : base(Amount, producingType) { }
+        public Artisans(int Amount, ResourceTypes.ResourceType producingType) : base(Amount, producingType, 1) { }
 
 
         public override double GetEfficensy()

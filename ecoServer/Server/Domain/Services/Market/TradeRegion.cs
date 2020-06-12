@@ -12,6 +12,7 @@ namespace ecoServer.Server.Domain.Services.Market
         public int ResourcesId { get; set; }
         public virtual Resources transportAmount { get; set; }
         private readonly double tradeChange = 0.01;
+        private float maxExport = 0.5f;
 
         public TradeRegion() { }
 
@@ -42,8 +43,13 @@ namespace ecoServer.Server.Domain.Services.Market
 
         public void IncreaseTrade(ResourceTypes.ResourceType resourceType)
         {
-            double newAmount = Math.Min(transportAmount.GetResource(resourceType).Amount + tradeChange, 1);
+            double newAmount = Math.Min(transportAmount.GetResource(resourceType).Amount + tradeChange, maxExport);
             transportAmount.SetResource(resourceType, newAmount);
+        }
+
+        public void MaxTrade(ResourceTypes.ResourceType resourceType)
+        {
+            transportAmount.SetResource(resourceType, 1);
         }
 
         public void DecreseTrade(ResourceTypes.ResourceType resourceType)

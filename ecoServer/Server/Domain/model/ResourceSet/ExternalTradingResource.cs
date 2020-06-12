@@ -1,5 +1,6 @@
 ﻿using econoomic_planer_X.Market;
 using Server.Server.Domain.model.ResourceSet;
+using System;
 
 namespace econoomic_planer_X.ResourceSet
 {
@@ -23,6 +24,12 @@ namespace econoomic_planer_X.ResourceSet
         public ExternalMarket getDestination()
         {
             return Destination.MarketDestination;
+        }
+
+        public void UpdateDestination(ExternalMarket externalMarket, double transportTime)
+        {
+            Destination.MarketDestination = externalMarket;
+            Destination.DaysRemaning = transportTime;
         }
 
         public void TransportADay()

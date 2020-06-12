@@ -12,7 +12,10 @@ namespace econoomic_planer_X
         public int ResourcesId { get; set; }
         public virtual Resources Stock { get; set; }
         public double Money { get; set; }
-        public const double startMoney = 5;
+        public const double startMoney = 5; 
+
+        public double Efficensy { get; set; }
+
         double selling = 0;
         public int ID { get; set; }
         public double PopLevel { get; set; }
@@ -23,11 +26,12 @@ namespace econoomic_planer_X
 
         public Population() { }
 
-        public Population(int Amount, ResourceTypes.ResourceType producingType)
+        public Population(int Amount, ResourceTypes.ResourceType producingType, double efficensy)
         {
             SetPopLevel(Amount);
             Money = Amount * startMoney;
             ProducingType = producingType;
+            Efficensy = efficensy;
         }
 
         public Population Init()
@@ -66,7 +70,7 @@ namespace econoomic_planer_X
 
         public virtual double GetEfficensy()
         {
-            return 1.05;
+            return Efficensy;
         }
 
 
