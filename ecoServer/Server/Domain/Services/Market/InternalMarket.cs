@@ -12,13 +12,15 @@ namespace econoomic_planer_X.Market
     {
         public int InternalMarketId { get; set; }
 
+        [ForeignKey("Supply")]
         public virtual List<TradingResources> Supply { get; set; }
-        public virtual List<TradingResources> ExternalSupply { get; set; }
+        [ForeignKey("ExternalSupply")]
+        public virtual List<ExternalTradingResources> ExternalSupply { get; set; }
         public virtual List<ResourceData> ResourceData { get; set; }
 
         [NotMapped]
-        private Resources Demand = new Resources().Init();
-        private PrimitivResource[] SupplySum = new PrimitivResource[ResourceTypes.TotalAmount()];
+        private readonly Resources Demand = new Resources().Init();
+        private readonly PrimitivResource[] SupplySum = new PrimitivResource[ResourceTypes.TotalAmount()];
         private const int PriceSlownes = 10;
 
         public InternalMarket()
@@ -30,13 +32,13 @@ namespace econoomic_planer_X.Market
         {
             ResourceData = new List<ResourceData>();
             Supply = new List<TradingResources>();
-            ExternalSupply = new List<TradingResources>();
+            ExternalSupply = new List<ExternalTradingResources>();
             int i = 0;
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 ResourceData.Add(new ResourceData(resourceType));
                 Supply.Add(new TradingResources(resourceType).Init());
-                ExternalSupply.Add(new TradingResources(resourceType).Init());
+                ExternalSupply.Add(new ExternalTradingResources());
                 i++;
 
             }
@@ -47,7 +49,7 @@ namespace econoomic_planer_X.Market
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 ComputeResourceRatio(resourceType);
-                ComputeExternalTrade(resourceType, externalMarket);
+                externalMarket.ComputeExternalTrade(GetExternalSupply(resourceType), resourceType, this);
             }
             externalMarket.UpdateTrade(ExternalSupply);
 
@@ -68,14 +70,36 @@ namespace econoomic_planer_X.Market
             }
 
             var toKepp = new List<TradingResource>();
-            foreach (var rList in tradingResources.TradingResourceList.GroupBy(r => r.Owner))
+            foreach (var groupedTradingResources in tradingResources.TradingResourceList.GroupBy(r => r.Owner))
             {
-                TradingResource first = rList.First();
-                first.Amount = rList.Sum(r => r.Amount);
-                toKepp.Add(first);
+                BuildCombinedResourceList(toKepp, groupedTradingResources);
             }
 
             tradingResources.TradingResourceList.RemoveAll(r => !toKepp.Any(re => re.TradingResourceId == r.TradingResourceId));
+        }
+
+        private void MergeDublicates(ExternalTradingResources tradingResources)
+        {
+            tradingResources.TradingResourceList.RemoveAll(r => r.Amount <= 0);
+            if (tradingResources.Count() < 2)
+            {
+                return;
+            }
+
+            var toKepp = new List<TradingResource>();
+            foreach (var groupedTradingResources in tradingResources.TradingResourceList.GroupBy(r => r.Owner))
+            {
+                BuildCombinedResourceList(toKepp, groupedTradingResources);
+            }
+
+            tradingResources.TradingResourceList.RemoveAll(r => !toKepp.Any(re => re.TradingResourceId == r.TradingResourceId));
+        }
+
+        private static void BuildCombinedResourceList(List<TradingResource> toKepp, IGrouping<Population, TradingResource> rList)
+        {
+            TradingResource first = rList.First();
+            first.Amount = rList.Sum(r => r.Amount);
+            toKepp.Add(first);
         }
 
         private void ComputeResourceRatio(ResourceTypes.ResourceType resourceType)
@@ -92,14 +116,7 @@ namespace econoomic_planer_X.Market
             return demandAmount > 0 ? supplyAmount / demandAmount : double.MaxValue;
         }
 
-        private void ComputeExternalTrade(ResourceTypes.ResourceType resourceType, ExternalMarket externalMarket)
-        {
-            double externalPrice = externalMarket.GetBestCost(resourceType, out TradeRegion destination);
 
-            double priceRatio = externalPrice / GetResourceData(resourceType).ResourcesPrice;
-            externalMarket.IncreaseTradeWith(resourceType, destination, priceRatio);
-            externalMarket.DoExternalTrade(GetSupply(resourceType).TradingResourceList, resourceType);
-        }
 
 
         public void DoTrade(List<Population> populations)
@@ -117,9 +134,9 @@ namespace econoomic_planer_X.Market
                 double buyRatio = Math.Min(1, resourceRatio);
                 double price = resoucreData.ResourcesPrice;
 
-                TradingResources supply = GetSupply(resourceType);
+                var supply = GetSupply(resourceType);
 
-                TradingResources exportSupply = GetExternalSupply(resourceType);
+                var exportSupply = GetExternalSupply(resourceType);
 
 
                 double sellRatio = Math.Min(1, 1 / ComputeResourceRatio(demmand, SupplySum[(int)(resourceType)].Amount));
@@ -223,17 +240,17 @@ namespace econoomic_planer_X.Market
             Demand.Adjust(resource);
         }
 
-        private TradingResources GetSupply(ResourceTypes.ResourceType resourceType)
+        public TradingResources GetSupply(ResourceTypes.ResourceType resourceType)
         {
             return Supply[(int)resourceType];
         }
 
-        private TradingResources GetExternalSupply(ResourceTypes.ResourceType resourceType)
+        private ExternalTradingResources GetExternalSupply(ResourceTypes.ResourceType resourceType)
         {
             return ExternalSupply[(int)resourceType];
         }
 
-        private ResourceData GetResourceData(ResourceTypes.ResourceType resourceType)
+        public ResourceData GetResourceData(ResourceTypes.ResourceType resourceType)
         {
             return ResourceData[(int)resourceType];
         }

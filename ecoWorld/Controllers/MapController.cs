@@ -11,6 +11,7 @@ using System;
 using System.Threading;
 using System.Globalization;
 using Server.Server.Domain.model.ResourceSet;
+using ecoServer.Server.Domain.Services.EntitServices;
 
 namespace ecoPlanerWeb.Controllers
 {
@@ -20,12 +21,14 @@ namespace ecoPlanerWeb.Controllers
         protected EcoContext Context { get; set; }
         protected ContryService ContryService { get; set; }
         protected PopulationService PopulationService { get; set; }
+        protected ResourceService ResourceService { get; set; }
 
-        public MapController(EcoContext context, ContryService contryService, PopulationService populationService)
+        public MapController(EcoContext context, ContryService contryService, PopulationService populationService, ResourceService resourceService)
         {
             Context = context;
             ContryService = contryService;
             PopulationService = populationService;
+            ResourceService = resourceService;
         }
 
         [HttpGet("[action]")]
@@ -37,7 +40,6 @@ namespace ecoPlanerWeb.Controllers
                 return NotFound();
             }
             IQueryable<Population> populations = ContryService.GetPopulationOfContry(contryId.Value, out Region region);
-            var resData = Context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarketId).ToList();
 
             string json;
             using (var stream = new MemoryStream())
@@ -48,16 +50,55 @@ namespace ecoPlanerWeb.Controllers
                     writer.WriteString("populations", ((long)populations.Sum(p => p.PopLevel)).ToString());
                     writer.WriteString("money", ((long)populations.Sum(p => p.Money)).ToString());
 
-                    foreach (ResourceData resourceData in resData)
-                    {
-                        writer.WriteString(resourceData.ResourceType.ToString(), resourceData.ResourcesPrice.ToString());
-                    }
+                    WriteResourcePrice(region, writer);
+
+                    WriteRecoureces(populations, writer);
+
+                    WriteExternalRecoureces(populations, writer);
+
                     writer.WriteEndObject();
                 }
                 json = Encoding.UTF8.GetString(stream.ToArray());
 
             }
             return Ok(json);
+        }
+
+        private void WriteResourcePrice(Region region, Utf8JsonWriter writer)
+        {
+            var resData = Context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarketId).ToList();
+            foreach (ResourceData resourceData in resData)
+            {
+                writer.WriteString("Cost of " + resourceData.ResourceType.ToString(), resourceData.ResourcesPrice.ToString());
+            }
+        }
+
+        private void WriteRecoureces(IQueryable<Population> populations, Utf8JsonWriter writer)
+        {
+            var ownedResources = ResourceService.GetResourcesForContry(populations.ToList());
+            if (ownedResources.Count == 0)
+            {
+                return;
+            }
+            foreach (var resourceType in ownedResources.GroupBy(r => r.ResourceType))
+            {
+                double amountORresourceType = resourceType.Sum(r => r.Amount);
+                writer.WriteString(resourceType.Key.ToString(), (amountORresourceType).ToString());
+            }
+        }
+
+        private void WriteExternalRecoureces(IQueryable<Population> populations, Utf8JsonWriter writer)
+        {
+            var ownedExternalResources = ResourceService.GetExternalResourcesForContry(populations.ToList());
+            if (ownedExternalResources.Count == 0)
+            {
+                return;
+            }
+            foreach (var resourceType in ownedExternalResources.GroupBy(r => r.ResourceType))
+            {
+                double amountORresourceType = resourceType.Sum(r => r.Amount);
+                writer.WriteString("External " + resourceType.Key.ToString(), (amountORresourceType).ToString());
+            }
         }
 
         [HttpGet("[action]")]
@@ -83,6 +124,18 @@ namespace ecoPlanerWeb.Controllers
             }
             return Ok(result);
         }
+        
+        [HttpGet("[action]")]
+        public IActionResult GetContryTradePartners()
+        {
+            List<string> contriesPop = ContryService.GetAllContryTradePartners();
+            string result = "";
+            foreach (var contry in contriesPop)
+            {
+                result += contry + ";";
+            }
+            return Ok(result);
+        }
 
         [HttpGet("[action]")]
         public IActionResult GetTradingPartner(string name)
@@ -94,7 +147,7 @@ namespace ecoPlanerWeb.Controllers
             }
 
             IQueryable<Population> populations = ContryService.GetPopulationOfContry(contryId.Value, out Region outRegion);
-            ICollection<Region> regions = PopulationService.GetTradingPartners(populations);
+            ICollection<Region> regions = ContryService.GetTradingPartners(populations);
             if (regions == null)
             {
                 return Ok();

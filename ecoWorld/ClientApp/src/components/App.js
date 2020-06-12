@@ -1,37 +1,27 @@
 import React, { Component } from 'react';
-import { Map, TileLayer, GeoJSON } from 'react-leaflet';
+import { Map, TileLayer, GeoJSON, LayerGroup } from 'react-leaflet';
 import SideBar from './SideBar';
-import LineMap from './LineMap';
-import "leaflet-polylinedecorator";
 import L from "leaflet";
+import Polyline from 'react-leaflet-arrowheads'
+
 
 const mapCenter = [39.9528, -75.1638];
 const zoomLevel = 3;
 const geojson = require('../custom.geo.json');
 const maxScrol = 8;
 const minScrol = 2;
-
-
-var arrow = [
-    {
-        offset: "100%",
-        repeat: 0,
-        symbol: L.Symbol.arrowHead({
-            pixelSize: 15,
-            polygon: false,
-            pathOptions: { stroke: true }
-        })
-    }
-];
-
+const arrowSize = '15%';
+const arrowDist = '5';
 export default class App extends Component {
+
+
     constructor(props) {
         super(props);
         this.state = { currentZoomLevel: zoomLevel };
         this.state = { contry: null };
         this.state = { mapData: null };
         this.state = { arrowMap: [[[57, -19], [60, -12]], [[30, -120], [30, 0]]] };
-        this.log = this.log.bind(this);
+        this.updateContry = this.updateContry.bind(this);
         this.renderCountries = this.renderCountries.bind(this);
         this.setColor = this.setColor.bind(this);
     }
@@ -49,7 +39,20 @@ export default class App extends Component {
         this.setState({ currentZoomLevel: newZoomLevel });
     }
 
-    log(e) {
+    arrowMapCallBack = (childData) => {
+        if (childData === null) {
+            this.setState({
+                arrowMap: []
+            });
+        } else {
+            this.setState({
+                arrowMap: childData
+            });
+        }
+    }
+
+
+    updateContry(e) {
         var point = [e.latlng.lng, e.latlng.lat];
         var features = geojson.features.length;
         for (var i = 0; i < features; i++) {
@@ -99,29 +102,6 @@ export default class App extends Component {
         contries[i] = <GeoJSON data={feature} style={style3} key={'setColor' + i} />;
     }
 
-    arrowMapCallBack = (childData) => {
-        if (childData === null) {
-            this.setState({
-                arrowMap: []
-            });
-        } else {
-            arrow.remove();
-            arrow = [
-                {
-                    offset: "100%",
-                    repeat: 0,
-                    symbol: L.Symbol.arrowHead({
-                        pixelSize: 15,
-                        polygon: false,
-                        pathOptions: { stroke: true }
-                    })
-                }
-            ];
-            this.setState({
-                arrowMap: childData
-            });
-        }
-    }
 
     mapCallBack = (childData) => {
         if (childData === null) {
@@ -131,31 +111,24 @@ export default class App extends Component {
             return;
         }
         var contries = childData.split(";");
-        var max = 0;
-        var min = 100000000;
-        var totalt = 0;
+        var values = findTotalForAllContries(contries)
+        var totalt = values[0];
+        var max = values[1];
 
-        for (var i = 0; i < contries.length - 1; i++) {
-            var num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
-            if (num < min) {
-                min = num;
-            }
-            if (num > max) {
-                max = num;
-            }
-            totalt += num;
-        }
         avg = (avg + max) / 2;
         var avg = totalt / contries.length;
         var avgAdj = avg / 128;
         var maxAdj = (max - avg) / 127;
-        for (i = 0; i < contries.length - 1; i++) {
+        for (var i = 0; i < contries.length - 1; i++) {
             var split = contries[i].split(':');
 
             var name = split[0];
-            num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
+            var num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
             var result;
-            if (num < avg) {
+            if (max === 0) {
+                result = "00";
+            }
+            else if (num < avg) {
                 result = (num / avgAdj).toString(16).split(".")[0];
             } else {
                 result = ((num - avg) / maxAdj + 128).toString(16).split(".")[0];
@@ -184,20 +157,44 @@ export default class App extends Component {
                         zoom={zoomLevel}
                         maxZoom={maxScrol}
                         minZoom={minScrol}
-                        onClick={this.log}
-                        maxBounds={[[-90, -260], [90, 260]]}
-                    >
+                        onClick={this.updateContry}
+                        maxBounds={[[-90, -260], [90, 260]]}  >
+
                         <TileLayer attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                             url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-                            noWrap='false'
-                        />
-                        <LineMap patterns={arrow} positions={this.state.arrowMap} />
+                            noWrap='false' />
+
+                        <Polyline positions={this.state.arrowMap} arrowheads={{ size: arrowSize, frequency: arrowDist }} />
+
                         {this.renderCountries(geojson)}
                     </Map>
                 </div>
-            </div>
+            </div >
         );
     }
+}
+
+
+//{ this.renderCountries(geojson) }
+
+
+
+function findTotalForAllContries(contries) {
+    var max = 0;
+    var min = 100000000;
+    var totalt = 0;
+
+    for (var i = 0; i < contries.length - 1; i++) {
+        var num = parseFloat(contries[i].split(":")[1].replace(',', '.'));
+        if (num < min) {
+            min = num;
+        }
+        if (num > max) {
+            max = num;
+        }
+        totalt += num;
+    }
+    return [totalt, max];
 }
 
 function inside(point, area) {

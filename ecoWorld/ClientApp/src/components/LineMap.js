@@ -3,7 +3,7 @@ import { Polyline, withLeaflet } from "react-leaflet";
 import L from "leaflet";
 import "leaflet-polylinedecorator";
 
-class LineMap extends Component {
+class PolylineDecorator extends Component {
     constructor(props) {
         super(props);
         this.polyRef = React.createRef();
@@ -22,4 +22,4 @@ class LineMap extends Component {
     }
 }
 
-export default withLeaflet(LineMap);
+export default withLeaflet(PolylineDecorator);

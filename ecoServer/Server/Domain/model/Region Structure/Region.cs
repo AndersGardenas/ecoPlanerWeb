@@ -10,7 +10,7 @@ namespace econoomic_planer_X
 {
     public class Region
     {
-        public int regionID { get; set; }
+        public int RegionID { get; set; }
 
         public int ContryID { get; set; }
 
@@ -24,7 +24,7 @@ namespace econoomic_planer_X
         // public virtual List<Region> Negbours { get; set; }
 
         private readonly List<Point> Polygon;
-        private float size = 0;
+        private readonly float size = 0;
 
 
         public Region()
@@ -47,14 +47,9 @@ namespace econoomic_planer_X
             ExternalMarket.Init();
             Populations = new List<Population>();
             Random rnd = new Random();
-            if (1 < rnd.Next(0,3))
-            {
-                Populations.Add(new Farmer(population, ResourceTypes.ResourceType.Fruit).Init());
-            }
-            else
-            {
-                Populations.Add(new Farmer(population, ResourceTypes.ResourceType.Cloth).Init());
-            }
+
+            Populations.Add(new Farmer(population/2, ResourceTypes.ResourceType.Fruit, 1.8 + rnd.NextDouble() * 0.4).Init());
+            Populations.Add(new Farmer(population/2, ResourceTypes.ResourceType.Cloth, 1.8 + rnd.NextDouble() * 0.4).Init());
             return this;
         }
 

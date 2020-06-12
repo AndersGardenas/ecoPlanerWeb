@@ -1,5 +1,6 @@
 
 using ecoServer.Server.Domain.Services;
+using ecoServer.Server.Domain.Services.EntitServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -62,12 +63,13 @@ namespace ecoPlanerWeb
             });
             services.AddTransient<ContryService>();
             services.AddTransient<PopulationService>();
+            services.AddTransient<ResourceService>();
 
         }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app)
         {
             app.UseDeveloperExceptionPage();
             InitDataBase.InitDB(app.ApplicationServices);

@@ -1,23 +1,34 @@
 import React from 'react';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faUserFriends, faDollarSign, faAppleAlt, faTshirt, } from '@fortawesome/free-solid-svg-icons'
+
+
 const host = 'api/Map/';
+
+const TRADINGPARTNERS = 'TradePartners'
+const GDP = 'GDP'
+const POPULATION = 'population'
 
 export default class HelloMessage extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { contryPop: 0 };
-        this.state = { money: 0 };
-        this.state = { countrySate: null };
-        this.state = { map: "" };
-        this.state = { arrowMap: "" };
+        this.state = {
+            contryPop: 0,
+            money: 0,
+            countrySate: [],
+            map: "",
+            arrowMap: ""
+        };
         this.requestGetContry = this.requestGetContry.bind(this);
         this.requestGetAllContries = this.requestGetAllContries.bind(this);
+        this.requestGetContryTradePartners = this.requestGetContryTradePartners.bind(this);
         this.renderMap = this.renderMap.bind(this);
         this.popMapButton = this.popMapButton.bind(this);
         this.gdpMapButton = this.gdpMapButton.bind(this);
+        this.tradePartnersButton = this.tradePartnersButton.bind(this);
         this.requestGetTradingPartner = this.requestGetTradingPartner.bind(this);
     }
-
 
     componentDidMount() {
         this.interval = setInterval(() => this.requestGetContry(), 500);
@@ -33,7 +44,6 @@ export default class HelloMessage extends React.Component {
     componentWillUnmount() {
         clearInterval(this.interval);
     }
-
 
     async requestGetContry() {
         if (this.props.contry === null || this.props.contry === undefined) {
@@ -63,6 +73,7 @@ export default class HelloMessage extends React.Component {
             response => {
                 console.log("data: " + response.data)
                 if (response.data === "") {
+                    this.props.parentArrowMapCallback([]);
                     return;
                 }
                 if (tmpContry === this.props.contry) {
@@ -74,7 +85,7 @@ export default class HelloMessage extends React.Component {
                     for (var prop in response.data) {
                         if (prop !== 'home') {
                             var data = response.data[prop];
-                            arrowList.push([home.split('|')[1], home.split('|')[0]], [data.split('|')[1], data.split('|')[0]])
+                            arrowList.push([[home.split('|')[1], home.split('|')[0]], [data.split('|')[1], data.split('|')[0]]])
                         }
                     }
                     this.setState({
@@ -91,8 +102,7 @@ export default class HelloMessage extends React.Component {
         axios(url).then(
             response => {
                 this.props.parentMapCallback(response.data);
-            }
-        );
+            });
     }
 
     async requestGetAllContriesGDP() {
@@ -100,8 +110,15 @@ export default class HelloMessage extends React.Component {
         axios(url).then(
             response => {
                 this.props.parentMapCallback(response.data);
-            }
-        );
+            });
+    }
+
+    async requestGetContryTradePartners() {
+        const url = host + `GetContryTradePartners`;
+        axios(url).then(
+            response => {
+                this.props.parentMapCallback(response.data);
+            });
     }
 
     async renderMap(mapType) {
@@ -112,46 +129,62 @@ export default class HelloMessage extends React.Component {
         }
         this.setState({ map: mapType });
 
-        if (mapType === 'population') {
+        if (mapType === POPULATION) {
             this.requestGetAllContries();
-        } else if (mapType === 'GDP') {
+        } else if (mapType === GDP) {
             this.requestGetAllContriesGDP();
+        } else if (mapType === TRADINGPARTNERS) {
+            this.requestGetContryTradePartners();
         }
     }
 
     async popMapButton() {
-        this.renderMap("population");
+        this.renderMap(POPULATION);
     }
 
     async gdpMapButton() {
-        this.renderMap("GDP");
+        this.renderMap(GDP);
+    }
+
+    async tradePartnersButton() {
+        this.renderMap(TRADINGPARTNERS);
     }
 
     render() {
         return (
             <div>
-                <button onClick={this.popMapButton} type="button">PopMap</button><p/>
-                <button onClick={this.gdpMapButton} type="button">gdpMapButton</button>
+                <p>
+                    <FontAwesomeIcon icon={faDollarSign} />
+                    {nFormatter(this.state.countrySate.money, 3)}
+                    &nbsp;
+                    <FontAwesomeIcon icon={faUserFriends} />
+                    {nFormatter(this.state.countrySate.populations, 3)}
+                    &nbsp;
+                    <FontAwesomeIcon icon={faAppleAlt} />
+                    {nFormatter(this.state.countrySate.Fruit, 3)}
+                    &nbsp;
+                    <FontAwesomeIcon icon={faTshirt} />
+                    {nFormatter(this.state.countrySate.Cloth, 3)}
+                </p>
+
+                <button onClick={this.popMapButton} type="button">PopMap</button><p />
+                <button onClick={this.gdpMapButton} type="button">GdpMap</button><p />
+                <button onClick={this.tradePartnersButton} type="button">TradePartnersMap</button>
                 <p>Map mode: {this.state.map} </p>
-                <p>Hello: {this.props.contry} </p>
-                <div><pre>{JSON.stringify(this.state.countrySate, null, 2)}</pre></div>;
-                <p>Arrow map is: {this.state.arrowMap.toString()}</p>
+
+                <div> Contry info: <pre>{JSON.stringify(this.state.countrySate, null, 2)}</pre></div>
+
+                <div> Arrow map is: <pre>{JSON.stringify(this.state.arrowMap, null, 2)}</pre></div>
             </div>
         );
     }
 }
 
+//<div> Contry info: <pre>{JSON.stringify(this.state.countrySate, null, 2)}</pre></div>
 
-function pareJson(data) {
-
-    this.setState({
-        contryPop: data['contryPop'],
-        money: data['money'],
-        price: data.split("|")[2], price2: data.split("|")[3]
-    });
-}
-
-function nFormatter(num, digits) {
+function nFormatter(input, digits) {
+    var num = parseInt(input);
+    num = num || 0;
     var si = [
         { value: 1, symbol: "" },
         { value: 1E3, symbol: "k" },
@@ -169,5 +202,5 @@ function nFormatter(num, digits) {
         }
     }
     return (num / si[i].value).toFixed(digits).replace(rx, "$1") + si[i].symbol;
-}
+};
 

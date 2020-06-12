@@ -18,7 +18,5 @@ ReactDOM.render(
 
 
 
-
-
 registerServiceWorker();
 

@@ -1,2 +1,14 @@
 ﻿// Import Bootstrap and its default variables
 @import '~bootstrap/scss/bootstrap.scss';
+
+.sr-only {
+    display: none;
+}
+
+h1, p {
+    font-family: Lato;
+}
+
+.leaflet-container {
+    height: 360px;
+}

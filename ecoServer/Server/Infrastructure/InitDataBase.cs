@@ -27,18 +27,16 @@ namespace Server.Server.Infrastructure
             using (StreamReader file = File.OpenText(@"C:\Users\Anders\Source\Repos\ecoPlanerWeb\ecoWorld\ClientApp\src\custom.geo.json"))
             {
                 var random = new Random();
-                using (var reader = new JsonTextReader(file))
+                using var reader = new JsonTextReader(file);
+                var o2 = (JObject)JToken.ReadFrom(reader);
+                o2.GetValue("features");
+                foreach (JToken token in o2.GetValue("features"))
                 {
-                    var o2 = (JObject)JToken.ReadFrom(reader);
-                    o2.GetValue("features");
-                    foreach (JToken token in o2.GetValue("features"))
-                    {
-                        string contryName = token["properties"]["admin"].ToString();
-                        var contry = new Contry(contryName);
-                        RegionCompute(random, token, contry);
-                        context.Contry.Add(contry);
-                        contries.Add(contry);
-                    }
+                    string contryName = token["properties"]["admin"].ToString();
+                    var contry = new Contry(contryName);
+                    RegionCompute(random, token, contry);
+                    context.Contry.Add(contry);
+                    contries.Add(contry);
                 }
             }
             context.SaveChanges();

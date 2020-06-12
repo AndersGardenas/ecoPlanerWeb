@@ -1,4 +1,7 @@
 ﻿using econoomic_planer_X;
+using econoomic_planer_X.Market;
+using econoomic_planer_X.ResourceSet;
+using Microsoft.EntityFrameworkCore;
 using Server.Server.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -8,7 +11,7 @@ namespace ecoServer.Server.Domain.Services
 {
     public class ContryService
     {
-        EcoContext Context;
+        readonly EcoContext Context;
 
         public ContryService(EcoContext context)
         {
@@ -47,7 +50,7 @@ namespace ecoServer.Server.Domain.Services
             {
                 return null;
             }
-            return Context.Population.Where(p => regions.Any(r => r.regionID == p.RegionID));
+            return Context.Population.Where(p => regions.Any(r => r.RegionID == p.RegionID));
         }
 
         public int? GetIdByName(string name)
@@ -57,6 +60,47 @@ namespace ecoServer.Server.Domain.Services
                 return null;
             }
             return Context.Contry.First(c => c.Name.Equals(name)).ID;
+        }
+
+        public List<string> GetAllContryTradePartners()
+        {
+            var contryInfo = new List<string>();
+            foreach (Contry contry in Context.Contry)
+            {
+                IQueryable<Population> pop = GetPopulationOfContry(contry.ID, out _);
+                var tradingPartners = GetTradingPartners(pop);
+                if (tradingPartners == null) {
+                    contryInfo.Add(contry.Name + ":0");
+                }
+                else {
+                    contryInfo.Add(contry.Name + ":" + tradingPartners.Count);
+                }
+            }
+            return contryInfo;
+        }
+
+
+        public ICollection<Region> GetTradingPartners(IQueryable<Population> populations)
+        {
+            IQueryable<ExternatlTradingResource> tr = Context.ExternatlTradingResource.Where(t => populations.Contains(t.Owner));
+            if (tr.Count() == 0)
+            {
+                return null;
+            }
+            List<ExternalMarket> market = new List<ExternalMarket>();
+            foreach (ExternatlTradingResource resource in tr)
+            {
+                if (resource?.Destination?.MarketDestination != null)
+                {
+                    market.Add(resource.Destination.MarketDestination);
+                }
+            }
+            IQueryable<Region> regions = Context.Region.Where(r => market.Contains(r.ExternalMarket));
+            if (regions.Count() == 0)
+            {
+                return null;
+            }
+            return regions.ToList();
         }
     }
 }

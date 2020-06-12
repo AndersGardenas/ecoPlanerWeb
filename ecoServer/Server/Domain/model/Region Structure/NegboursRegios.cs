@@ -18,7 +18,7 @@ namespace econoomic_planer_X
 
         public NeighbourRegion(Region OwnRegion, Region NeighbouringRegion)
         {
-            if (OwnRegion.regionID > NeighbouringRegion.regionID)
+            if (OwnRegion.RegionID > NeighbouringRegion.RegionID)
             {
                 this.OwnRegion = OwnRegion;
                 this.NeighbouringRegion = NeighbouringRegion;

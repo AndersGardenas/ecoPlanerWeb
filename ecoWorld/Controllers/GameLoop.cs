@@ -51,7 +51,7 @@ namespace ecoPlanerWeb
         public static void CleanUp(EcoContext context)
         {
             context.TradingResource.RemoveRange(context.TradingResource.Where(r => r.TradingResourcesID == null && r.ExternalTradingResourcesID == null));
-            context.Destination.RemoveRange(context.Destination.Where(d => d.DaysRemaning <= 0));
+            //context.Destination.RemoveRange(context.Destination.Where(d => d.DaysRemaning <= 0));
         }
 
         public static void Init()
