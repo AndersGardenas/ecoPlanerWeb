@@ -6,16 +6,16 @@ using System.Linq;
 
 namespace econoomic_planer_X.PopulationTypes
 {
-    public static class Demand
+    public class Demand
     {
         private const double minemumDemand = 0.01;
 
-        public static double[] AmountNeeded { get; set; }
-        public static double[] LifeValues { get; set; }
-        public static PrimitivResource[] ResourceDemand { get; set; }
-        public static double TotalLifleValue { get; set; }
+        public double[] AmountNeeded { get; set; }
+        public double[] LifeValues { get; set; }
+        public PrimitivResource[] ResourceDemand { get; set; }
+        public double TotalLifleValue { get; set; }
 
-        public static void Init()
+        public Demand Init()
         {
             ResourceDemand = new PrimitivResource[Resource.ResourceTypeSize()];
 
@@ -33,32 +33,34 @@ namespace econoomic_planer_X.PopulationTypes
             SetDemand(ResourceTypes.ResourceType.Fruit, 1, lifeValueFruit / TotalLifleValue);
             SetDemand(ResourceTypes.ResourceType.Cloth, 1, lifeValueCloth / TotalLifleValue);
 
+            return this;
+
         }
 
-        public static double GetLifeValueAdjusted(ResourceTypes.ResourceType resourceType)
+        public double GetLifeValueAdjusted(ResourceTypes.ResourceType resourceType)
         {
             return LifeValues[(int)resourceType];
         }
 
-        public static double GetAmountNeeded(ResourceTypes.ResourceType resourceType)
+        public double GetAmountNeeded(ResourceTypes.ResourceType resourceType)
         {
             return Convert.ToDouble(AmountNeeded[(int)resourceType]);
         }
 
 
-        public static double GetDemand(ResourceTypes.ResourceType resourceType)
+        public double GetDemand(ResourceTypes.ResourceType resourceType)
         {
             return ResourceDemand[(int)resourceType].Amount;
         }
 
 
-        public static void SetDemand(ResourceTypes.ResourceType resourceType, double amountNeeded, double lifeValue)
+        public void SetDemand(ResourceTypes.ResourceType resourceType, double amountNeeded, double lifeValue)
         {
             AmountNeeded[(int)resourceType] = amountNeeded;
             LifeValues[(int)resourceType] = lifeValue;
         }
 
-        public static void UpdateDemand(InternalMarket market, Population population)
+        public void UpdateDemand(InternalMarket market, Population population)
         {
             resetDemand();
 
@@ -76,7 +78,7 @@ namespace econoomic_planer_X.PopulationTypes
         }
 
 
-        private static void ComputeWhatToBuy(InternalMarket market, Population population, Dictionary<ResourceTypes.ResourceType, double> lifePriceRatioMap)
+        private void ComputeWhatToBuy(InternalMarket market, Population population, Dictionary<ResourceTypes.ResourceType, double> lifePriceRatioMap)
         {
             double money = population.Money;
             IEnumerable<KeyValuePair<ResourceTypes.ResourceType, double>> orderedLifePriceRatio = lifePriceRatioMap.OrderByDescending(ratio => ratio.Value);
@@ -84,7 +86,7 @@ namespace econoomic_planer_X.PopulationTypes
             {
                 ResourceTypes.ResourceType resourceType = resoucreTypeRatio.Key;
                 double price = market.GetPrice(resourceType);
-                double buyAmount = Math.Min(money / price, population.GetIntegerPopLevel() * GetAmountNeeded(resourceType));
+                double buyAmount = Math.Round(Math.Min(money / price, population.GetIntegerPopLevel() * GetAmountNeeded(resourceType)),3, MidpointRounding.ToZero);
                 if (buyAmount < minemumDemand)
                 {
                     continue;
@@ -98,7 +100,7 @@ namespace econoomic_planer_X.PopulationTypes
             }
         }
 
-        private static void resetDemand()
+        private void resetDemand()
         {
             for (int i = 0; i < ResourceDemand.Length; i++)
             {

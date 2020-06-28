@@ -159,12 +159,20 @@ export default class HelloMessage extends React.Component {
                     &nbsp;
                     <FontAwesomeIcon icon={faUserFriends} />
                     {nFormatter(this.state.countrySate.populations, 3)}
-                    &nbsp;
+                    <br />
                     <FontAwesomeIcon icon={faAppleAlt} />
                     {nFormatter(this.state.countrySate.Fruit, 3)}
                     &nbsp;
                     <FontAwesomeIcon icon={faTshirt} />
                     {nFormatter(this.state.countrySate.Cloth, 3)}
+                    <br />
+                    <FontAwesomeIcon icon={faDollarSign} />
+                    <FontAwesomeIcon icon={faAppleAlt} />
+                    {nFormatter(this.state.countrySate.Cost_of_Fruit, 3)}
+                    &nbsp;
+                    <FontAwesomeIcon icon={faDollarSign} />
+                    <FontAwesomeIcon icon={faTshirt} />
+                    {nFormatter(this.state.countrySate.Cost_of_Cloth, 3)}
                 </p>
 
                 <button onClick={this.popMapButton} type="button">PopMap</button><p />
@@ -183,6 +191,9 @@ export default class HelloMessage extends React.Component {
 //<div> Contry info: <pre>{JSON.stringify(this.state.countrySate, null, 2)}</pre></div>
 
 function nFormatter(input, digits) {
+    if (input < 100) {
+        return parseFloat(input).toFixed(2);
+    }
     var num = parseInt(input);
     num = num || 0;
     var si = [

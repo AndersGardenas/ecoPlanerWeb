@@ -36,6 +36,13 @@ namespace econoomic_planer_X.ResourceSet
             return new ExternatlTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
         }
 
+        public ExternatlTradingResource SplitAmountExternal(double amount, ExternalMarket destination, double localTravelTime)
+        {
+            double splitAmount = amount;
+            Amount -= splitAmount;
+            return new ExternatlTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
+        }
+
         public bool AffordTransport(double tradeRegionRatio, double amount)
         {
             return (tradeRegionRatio * amount > Owner.GetIntegerPopLevel() * 0.1) && Owner.AffordTransport();

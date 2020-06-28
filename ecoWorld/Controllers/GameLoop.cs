@@ -65,7 +65,6 @@ namespace ecoPlanerWeb
                 Thread.CurrentThread.CurrentCulture = ci;
             }
             CultureInfo.CurrentCulture = new CultureInfo("en-GB", false);
-            Demand.Init();
         }
     }
 

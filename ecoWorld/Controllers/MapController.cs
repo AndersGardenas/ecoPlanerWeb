@@ -69,7 +69,7 @@ namespace ecoPlanerWeb.Controllers
             var resData = Context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarketId).ToList();
             foreach (ResourceData resourceData in resData)
             {
-                writer.WriteString("Cost of " + resourceData.ResourceType.ToString(), resourceData.ResourcesPrice.ToString());
+                writer.WriteString("Cost_of_" + resourceData.ResourceType.ToString(), resourceData.ResourcesPrice.ToString());
             }
         }
 

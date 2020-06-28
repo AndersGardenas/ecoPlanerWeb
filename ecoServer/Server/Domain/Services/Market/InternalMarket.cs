@@ -49,7 +49,7 @@ namespace econoomic_planer_X.Market
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 ComputeResourceRatio(resourceType);
-                externalMarket.ComputeExternalTrade(GetExternalSupply(resourceType), resourceType, this);
+                externalMarket.ComputeExternalTrade(GetExternalSupply(resourceType), resourceType, GetResourceData(resourceType).GetResourceRatio(),  this);
             }
             externalMarket.UpdateTrade(ExternalSupply);
 
@@ -116,9 +116,6 @@ namespace econoomic_planer_X.Market
             return demandAmount > 0 ? supplyAmount / demandAmount : double.MaxValue;
         }
 
-
-
-
         public void DoTrade(List<Population> populations)
         {
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
@@ -137,7 +134,6 @@ namespace econoomic_planer_X.Market
                 var supply = GetSupply(resourceType);
 
                 var exportSupply = GetExternalSupply(resourceType);
-
 
                 double sellRatio = Math.Min(1, 1 / ComputeResourceRatio(demmand, SupplySum[(int)(resourceType)].Amount));
 

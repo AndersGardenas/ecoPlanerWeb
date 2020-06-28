@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Map, TileLayer, GeoJSON, LayerGroup } from 'react-leaflet';
+import { Map, TileLayer, GeoJSON} from 'react-leaflet';
 import SideBar from './SideBar';
-import L from "leaflet";
 import Polyline from 'react-leaflet-arrowheads'
 
 
@@ -164,7 +163,6 @@ export default class App extends Component {
                             url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                             noWrap='false' />
 
-                        <Polyline positions={this.state.arrowMap} arrowheads={{ size: arrowSize, frequency: arrowDist }} />
 
                         {this.renderCountries(geojson)}
                     </Map>
@@ -174,7 +172,8 @@ export default class App extends Component {
     }
 }
 
-
+  //                      <Polyline positions={this.state.arrowMap} arrowheads={{ size: arrowSize, frequency: arrowDist }} />
+//
 //{ this.renderCountries(geojson) }
 
 

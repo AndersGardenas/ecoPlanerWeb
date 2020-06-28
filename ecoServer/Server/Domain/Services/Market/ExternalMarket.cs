@@ -86,7 +86,7 @@ namespace econoomic_planer_X.Market
                     bestCost = salesCost;
                     bestRegion = tradeRegion;
                 }
-                if (tradeRegion.GetTransportAmount(resourceType) > 0 &&  salesCost < worstCost)
+                if (tradeRegion.GetTransportAmount(resourceType) > 0 && salesCost < worstCost)
                 {
                     worstCost = salesCost;
                     worstRegion = tradeRegion;
@@ -109,14 +109,14 @@ namespace econoomic_planer_X.Market
                     }
                     tradeRegion.IncreaseTrade(resourceType);
                 }
-                else if(worstTradeRegion != null && worstTradeRegion.ID == tradeRegion.ID)
+                else if (worstTradeRegion != null && worstTradeRegion.ID == tradeRegion.ID)
                 {
                     worstTradeRegion.DecreseTrade(resourceType);
                 }
             }
         }
 
-        public void ComputeExternalTrade(ExternalTradingResources externalTradingResources, ResourceTypes.ResourceType resourceType, InternalMarket internalMarket)
+        public void ComputeExternalTrade(ExternalTradingResources externalTradingResources, ResourceTypes.ResourceType resourceType, double resourceRatio, InternalMarket internalMarket)
         {
             double externalPrice = GetBestCost(resourceType, out TradeRegion destination, out TradeRegion worstTradeRegion);
 
@@ -124,11 +124,11 @@ namespace econoomic_planer_X.Market
             DoExternalTradeWithExternalResources(priceRatio, externalTradingResources, destination);
             IncreaseTradeWith(resourceType, destination, worstTradeRegion);
 
-            if (priceRatio <= 1.25)
+            if (priceRatio <= 1.05)
             {
                 return;
             }
-            DoExternalTradeWithInternalResources(internalMarket.GetSupply(resourceType).TradingResourceList, resourceType);
+            DoExternalTradeWithInternalResources(internalMarket.GetSupply(resourceType).TradingResourceList, resourceType, resourceRatio);
         }
 
 
@@ -147,29 +147,42 @@ namespace econoomic_planer_X.Market
             }
             else
             {
-                foreach (TradingResource tr in externalTradingResources.TradingResourceList){
-                    ExternatlTradingResourcesInTransit.TradingResourceList.Add(tr.SplitExternal(priceRatio/ externalTreshold, targetTradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
+                foreach (TradingResource tr in externalTradingResources.TradingResourceList)
+                {
+                    ExternatlTradingResourcesInTransit.TradingResourceList.Add(tr.SplitExternal(priceRatio / externalTreshold, targetTradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
                 }
 
             }
         }
 
-        private void DoExternalTradeWithInternalResources(List<TradingResource> TradingResources, ResourceTypes.ResourceType resourceType)
+        private void DoExternalTradeWithInternalResources(List<TradingResource> TradingResources, ResourceTypes.ResourceType resourceType, double resourceRatio)
         {
-            double transportTimeOutOfRigion = Ownregion.GetTransportTime() / 2;
-
-            foreach (TradeRegion tradeRegion in TradeRegions)
+            if (resourceRatio == 0)
             {
-                double tradeRegionRatio = tradeRegion.GetTransportAmount(resourceType);
-                if (tradeRegionRatio <= 0)
+                return;
+            }
+            double exportRatio = 1 - (1/ resourceRatio);
+            if (exportRatio <= 0)
+            {
+                return;
+            }
+
+            double transportTimeOutOfRigion = Ownregion.GetTransportTime() / 2;
+            foreach (TradingResource tradingResounce in TradingResources)
+            {
+                double totalSellAMount = tradingResounce.Amount * exportRatio;
+
+                foreach (TradeRegion tradeRegion in TradeRegions)
                 {
-                    continue;
-                }
-                foreach (TradingResource tradingResounce in TradingResources)
-                {
+                    double tradeRegionRatio = tradeRegion.GetTransportAmount(resourceType);
+                    if (tradeRegionRatio <= 0)
+                    {
+                        continue;
+                    }
+
                     if (tradingResounce.AffordTransport(tradeRegionRatio, tradingResounce.Amount))
                     {
-                        ExternatlTradingResourcesInTransit.TradingResourceList.Add(tradingResounce.SplitExternal(tradeRegionRatio, tradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
+                        ExternatlTradingResourcesInTransit.TradingResourceList.Add(tradingResounce.SplitAmountExternal(totalSellAMount * tradeRegionRatio, tradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
                     }
                 }
             }

@@ -1,4 +1,6 @@
-﻿namespace econoomic_planer_X.ResourceSet
+﻿using System;
+
+namespace econoomic_planer_X.ResourceSet
 {
 
 
@@ -26,7 +28,12 @@
         public bool Adjust(double value)
         {
             Amount += value;
-            return value >= 0;
+            if (Amount < 0)
+            {
+                Console.WriteLine("Negative Resource, should not be posible, Amount:" + value);
+                return false;
+            }
+            return true;
         }
 
     }

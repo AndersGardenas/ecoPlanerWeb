@@ -24,6 +24,8 @@ namespace econoomic_planer_X
         public int RegionID { get; set; }
         public virtual Region Region { get; set; }
 
+        public Demand demand = new Demand().Init();
+
         public Population() { }
 
         public Population(int Amount, ResourceTypes.ResourceType producingType, double efficensy)
@@ -37,6 +39,7 @@ namespace econoomic_planer_X
         public Population Init()
         {
             Stock = new Resources().Init();
+
             return this;
         }
 
@@ -47,13 +50,17 @@ namespace econoomic_planer_X
         }
         public void SetPopLevel(double value)
         {
+            if (value < 0)
+            {
+                int breakPoint = 0;
+            }
             PopLevel = value;
         }
 
 
         public void UpdateDemand(InternalMarket market)
         {
-            Demand.UpdateDemand(market, this);
+            demand.UpdateDemand(market, this);
         }
 
         public bool AffordTransport()
@@ -63,8 +70,12 @@ namespace econoomic_planer_X
 
         public void Trade(double money, PrimitivResource resource)
         {
+            if (PopLevel > 500000000)
+            {
+                int breakit = 0;
+            }
             Money += money;
-            Stock.Adjust(resource);
+            //Stock.Adjust(resource);
         }
 
 
@@ -86,7 +97,7 @@ namespace econoomic_planer_X
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
 
-                double neededAmount = Demand.GetDemand(resourceType);
+                double neededAmount = demand.GetDemand(resourceType);
                 if (neededAmount == 0)
                 {
                     continue;
@@ -100,7 +111,7 @@ namespace econoomic_planer_X
                 }
 
                 double ratio = Math.Min(1, amountInStock / neededAmount);
-                FoodLevel += ratio * Demand.GetLifeValueAdjusted(resourceType);
+                FoodLevel += ratio * demand.GetLifeValueAdjusted(resourceType);
                 Stock.Adjust(new PrimitivResource(resourceType, -ratio * neededAmount));
             }
         }
@@ -131,7 +142,7 @@ namespace econoomic_planer_X
 
         public void Produce()
         {
-            double produce = GetIntegerPopLevel() * GetEfficensy();
+            double produce = Math.Round(GetIntegerPopLevel() * GetEfficensy(),3,MidpointRounding.ToZero);
             var resource = new PrimitivResource(ProducingType, produce);
 
             Stock.Adjust(resource);
@@ -140,13 +151,17 @@ namespace econoomic_planer_X
 
         public void BuyAmount(double ratio, double price, ResourceTypes.ResourceType resourceType)
         {
-            double buyAmount = Demand.GetDemand(resourceType) * ratio;
+            double buyAmount = demand.GetDemand(resourceType) * ratio;
             if (buyAmount == 0)
             {
                 return;
             }
             Stock.Adjust(new PrimitivResource(resourceType, buyAmount));
             Money -= buyAmount * price;
+            if (Money < 0)
+            {
+                int breakit = 0;
+            }
         }
     }
 }

@@ -47,8 +47,19 @@ namespace econoomic_planer_X
             ExternalMarket.Init();
             Populations = new List<Population>();
             Random rnd = new Random();
+            if (population <= 0)
+            {
+                population = 100;
+            }
+            //1.8 + rnd.NextDouble() * 0.4
+            if (population > 1000000000) { 
+            Populations.Add(new Farmer(population/2, ResourceTypes.ResourceType.Fruit, 10).Init());
+            }
+            else
+            {
+                Populations.Add(new Farmer(population / 2, ResourceTypes.ResourceType.Fruit, 1.8 + rnd.NextDouble() * 0.4).Init());
 
-            Populations.Add(new Farmer(population/2, ResourceTypes.ResourceType.Fruit, 1.8 + rnd.NextDouble() * 0.4).Init());
+            }
             Populations.Add(new Farmer(population/2, ResourceTypes.ResourceType.Cloth, 1.8 + rnd.NextDouble() * 0.4).Init());
             return this;
         }
