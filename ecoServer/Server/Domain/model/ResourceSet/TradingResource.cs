@@ -48,9 +48,9 @@ namespace econoomic_planer_X.ResourceSet
             return (tradeRegionRatio * amount > Owner.GetIntegerPopLevel() * 0.1) && Owner.AffordTransport();
         }
 
-        public void Trade(double ratio, double price, ResourceTypes.ResourceType resourceType)
+        public void Trade(double ratio, double price)
         {
-            Owner.Trade(ratio * Amount * price, new PrimitivResource(resourceType, -ratio * Amount));
+            Owner.Trade(ratio * Amount * price);
             Amount -= ratio * Amount;
         }
 

@@ -128,44 +128,74 @@ namespace econoomic_planer_X.Market
 
                 var resoucreData = GetResourceData(resourceType);
                 var resourceRatio = resoucreData.GetResourceRatio();
-                double buyRatio = Math.Min(1, resourceRatio);
                 double price = resoucreData.ResourcesPrice;
 
                 var supply = GetSupply(resourceType);
 
                 var exportSupply = GetExternalSupply(resourceType);
 
-                double sellRatio = Math.Min(1, 1 / ComputeResourceRatio(demmand, SupplySum[(int)(resourceType)].Amount));
+                double sellRatio = Math.Min(1, 1 / ComputeResourceRatio(demmand, SupplySum[(int)resourceType].Amount));
+                demmand = AutoTrade(resourceType);
+                double newBuyRatio = Math.Min(1, ComputeResourceRatio(demmand, SupplySum[(int)resourceType].Amount));
 
                 foreach (Population pop in populations)
                 {
-                    pop.BuyAmount(buyRatio, price, resourceType);
+                    pop.BuyAmount(newBuyRatio, price, resourceType);
                 }
 
-                supply.TradingResourceList.ForEach(tr => tr.Trade(sellRatio, price, resourceType));
+                supply.TradingResourceList.ForEach(tr => tr.Trade(sellRatio, price));
                 supply.TradingResourceList.RemoveAll(su => su.Empty());
 
-                exportSupply.TradingResourceList.ForEach(tr => tr.Trade(sellRatio, price, resourceType));
+                exportSupply.TradingResourceList.ForEach(tr => tr.Trade(sellRatio, price));
                 exportSupply.TradingResourceList.RemoveAll(su => su.Empty());
             }
         }
 
-        double AutoTrade(TradingResources supply, double demmand, double price, ResourceTypes.ResourceType resourceType)
+        double AutoTrade(ResourceTypes.ResourceType resourceType)
         {
+            var supply = GetSupply(resourceType);
+            var externalSupply = GetExternalSupply(resourceType);
+            var resoucreData = GetResourceData(resourceType);
+            double price = resoucreData.ResourcesPrice;
+
+            double demmand = Demand.GetAmount(resourceType);
+            double initialDemand = demmand;
             foreach (TradingResource tr in supply.TradingResourceList)
             {
-                if (tr.Amount < (demmand * 0.1))
+                if (demmand < (initialDemand * 0.01)){
+                    break;
+                }
+                else if(tr.Amount < (initialDemand * 0.01))
                 {
                     demmand -= tr.Amount;
                     SupplySum[(int)resourceType].Amount -= tr.Amount;
-                    tr.Trade(1, price, resourceType);
+                    tr.Trade(1, price);
                 }
                 else
                 {
-                    break;
+                    continue;
                 }
             }
+
+            foreach (TradingResource tr in externalSupply.TradingResourceList)
+            {
+                if (demmand < (initialDemand * 0.01)){
+                    break;
+                }
+                else if (tr.Amount < (initialDemand * 0.01))
+                {
+                    demmand -= tr.Amount;
+                    SupplySum[(int)resourceType].Amount -= tr.Amount;
+                    tr.Trade(1, price);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+
             supply.TradingResourceList.RemoveAll(su => su.Empty());
+            externalSupply.TradingResourceList.RemoveAll(su => su.Empty());
             return demmand;
         }
 

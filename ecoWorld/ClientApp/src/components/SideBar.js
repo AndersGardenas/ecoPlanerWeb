@@ -191,7 +191,7 @@ export default class HelloMessage extends React.Component {
 //<div> Contry info: <pre>{JSON.stringify(this.state.countrySate, null, 2)}</pre></div>
 
 function nFormatter(input, digits) {
-    if (input < 100) {
+    if (input < "100") {
         return parseFloat(input).toFixed(2);
     }
     var num = parseInt(input);

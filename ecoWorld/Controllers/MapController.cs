@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Text.Json;
-using System;
 using System.Threading;
 using System.Globalization;
 using Server.Server.Domain.model.ResourceSet;
@@ -29,6 +28,15 @@ namespace ecoPlanerWeb.Controllers
             ContryService = contryService;
             PopulationService = populationService;
             ResourceService = resourceService;
+
+            string CultureName = Thread.CurrentThread.CurrentCulture.Name;
+            CultureInfo ci = new CultureInfo(CultureName);
+            if (ci.NumberFormat.NumberDecimalSeparator != ".")
+            {
+                // Forcing use of decimal separator for numerical values
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                Thread.CurrentThread.CurrentCulture = ci;
+            }
         }
 
         [HttpGet("[action]")]
@@ -152,14 +160,7 @@ namespace ecoPlanerWeb.Controllers
             {
                 return Ok();
             }
-            string CultureName = Thread.CurrentThread.CurrentCulture.Name;
-            CultureInfo ci = new CultureInfo(CultureName);
-            if (ci.NumberFormat.NumberDecimalSeparator != ".")
-            {
-                // Forcing use of decimal separator for numerical values
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                Thread.CurrentThread.CurrentCulture = ci;
-            }
+
             string json;
             using (var stream = new MemoryStream())
             {

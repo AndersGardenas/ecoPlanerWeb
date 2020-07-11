@@ -1,6 +1,8 @@
 using econoomic_planer_X;
 using econoomic_planer_X.PopulationTypes;
+using econoomic_planer_X.ResourceSet;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Server.Server.Infrastructure;
 using System;
@@ -26,6 +28,7 @@ namespace ecoPlanerWeb
             double time = 0;
             int iter = 0;
             sw.Start();
+            int frameTime = 100;
             //  context.ChangeTracker.ValidateOnSaveEnabled = false;
             while (true)
             {
@@ -44,13 +47,15 @@ namespace ecoPlanerWeb
                 CleanUp(context);
                 context.BulkSaveChanges();
                 Console.WriteLine("Elapsed Commit ={0}", sw.Elapsed.TotalMilliseconds - time);
-                Thread.Sleep((int)Math.Max(1, 1000 - (sw.Elapsed.TotalMilliseconds - startTime)));
+                Thread.Sleep((int)Math.Max(1, frameTime - (sw.Elapsed.TotalMilliseconds - startTime)));
                 time = sw.Elapsed.TotalMilliseconds;
             }
         }
         public static void CleanUp(EcoContext context)
         {
-            context.TradingResource.RemoveRange(context.TradingResource.Where(r => r.TradingResourcesID == null && r.ExternalTradingResourcesID == null));
+            IQueryable<TradingResource> tr = context.TradingResource.Where(r => r.TradingResourcesID == null && r.ExternalTradingResourcesID == null);
+            context.Destination.RemoveRange(context.Destination.Where(dr => dr.ExternatlTradingResource == null));
+            context.TradingResource.RemoveRange(tr);
             //context.Destination.RemoveRange(context.Destination.Where(d => d.DaysRemaning <= 0));
         }
 

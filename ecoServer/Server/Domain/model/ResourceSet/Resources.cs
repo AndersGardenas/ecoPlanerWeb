@@ -25,6 +25,10 @@ namespace econoomic_planer_X.ResourceSet
             if (ResoucreExist(resourceType) == false) return 0;
             return GetResource(resourceType).Amount;
         }
+        public void SetAmount(ResourceTypes.ResourceType resourceType, double value)
+        {
+            GetResource(resourceType).Amount += value;
+        }
 
         public void Adjust(PrimitivResource resource)
         {

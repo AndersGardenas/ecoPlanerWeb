@@ -50,10 +50,6 @@ namespace econoomic_planer_X
         }
         public void SetPopLevel(double value)
         {
-            if (value < 0)
-            {
-                int breakPoint = 0;
-            }
             PopLevel = value;
         }
 
@@ -68,14 +64,9 @@ namespace econoomic_planer_X
             return Money > PopLevel;
         }
 
-        public void Trade(double money, PrimitivResource resource)
+        public void Trade(double money)
         {
-            if (PopLevel > 500000000)
-            {
-                int breakit = 0;
-            }
             Money += money;
-            //Stock.Adjust(resource);
         }
 
 
@@ -158,10 +149,6 @@ namespace econoomic_planer_X
             }
             Stock.Adjust(new PrimitivResource(resourceType, buyAmount));
             Money -= buyAmount * price;
-            if (Money < 0)
-            {
-                int breakit = 0;
-            }
         }
     }
 }

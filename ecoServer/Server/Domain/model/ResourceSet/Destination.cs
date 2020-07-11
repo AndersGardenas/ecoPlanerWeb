@@ -1,4 +1,6 @@
 ﻿using econoomic_planer_X.Market;
+using econoomic_planer_X.ResourceSet;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Server.Server.Domain.model.ResourceSet
 {
@@ -8,6 +10,9 @@ namespace Server.Server.Domain.model.ResourceSet
         public double DaysRemaning { get; set; }
         public virtual ExternalMarket MarketDestination { get; set;}
 
+        [ForeignKey("ExternatlTradingResource")]
+        public int ExternatlTradingResourceId { get; set; }
+        public virtual ExternatlTradingResource ExternatlTradingResource { get; set; }
 
         public Destination() { }
         public Destination(ExternalMarket destination, double daysRemaning)
