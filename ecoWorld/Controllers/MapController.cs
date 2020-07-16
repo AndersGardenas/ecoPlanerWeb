@@ -75,7 +75,7 @@ namespace ecoPlanerWeb.Controllers
         private void WriteResourcePrice(Region region, Utf8JsonWriter writer)
         {
             var resData = Context.ResourceData.Where(rd => rd.InternalMarketId == region.InternalMarketId).ToList();
-            foreach (ResourceData resourceData in resData)
+            foreach (SupplyToDemandRatio resourceData in resData)
             {
                 writer.WriteString("Cost_of_" + resourceData.ResourceType.ToString(), resourceData.ResourcesPrice.ToString());
             }
@@ -106,6 +106,13 @@ namespace ecoPlanerWeb.Controllers
             {
                 double amountORresourceType = resourceType.Sum(r => r.Amount);
                 writer.WriteString("External " + resourceType.Key.ToString(), (amountORresourceType).ToString());
+            }
+            foreach (var resourceType in ownedExternalResources.GroupBy(r => new {r.ResourceType,r.Destination}))
+            {
+                double amountORresourceType = resourceType.Sum(r => r.Amount);
+                var value = resourceType.ToArray()[0];
+                string contryNmae = ContryService.GetContry(value.Destination.MarketDestination.Id)?.Name;
+                writer.WriteString("External " + value.ResourceType.ToString(), "\n" + amountORresourceType.ToString() + " in " + contryNmae);
             }
         }
 

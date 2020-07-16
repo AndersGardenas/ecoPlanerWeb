@@ -5,18 +5,18 @@ using System;
 
 namespace econoomic_planer_X.ResourceSet
 {
-    public class ExternatlTradingResource : TradingResource
+    public class ExternalTradingResource : TradingResource
     {
         public virtual Destination Destination { get; set; }
 
-        public ExternatlTradingResource() { }
+        public ExternalTradingResource() { }
 
-        public ExternatlTradingResource(Population Owner, ResourceTypes.ResourceType resourceType, double Amount) :
+        public ExternalTradingResource(Population Owner, ResourceTypes.ResourceType resourceType, double Amount) :
             base(Owner, resourceType, Amount)
         {
         }
 
-        public ExternatlTradingResource Init(ExternalMarket destination, double daysRemaning)
+        public ExternalTradingResource Init(ExternalMarket destination, double daysRemaning)
         {
             Destination = new Destination(destination, daysRemaning);
             return this;

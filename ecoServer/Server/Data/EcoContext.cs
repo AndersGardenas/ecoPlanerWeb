@@ -29,7 +29,7 @@ namespace Server.Server.Infrastructure
             //builder.Entity<TradingResource>().ToTable("TradingResource");
             //builder.Entity<TradingResources>().ToTable("TradingResources");
             //builder.Entity<ExternatlTradingResource>().ToTable("ExternatlTradingResource");
-            builder.Entity<ResourceData>().HasIndex(re => re.ResourceType);
+            builder.Entity<SupplyToDemandRatio>().HasIndex(re => re.ResourceType);
 
             //builder.Entity<TradingResources>().HasOne(r => r.InternalMarket).WithMany(r => r.Supply).HasForeignKey(r => r.InternalMarketFK).OnDelete(DeleteBehavior.Cascade);
             //builder.Entity<TradingResources>().HasOne(r => r.InternalMarket2).WithMany(r => r.ExternalSupply).HasForeignKey(r => r.InternalMarketFK2).OnDelete(DeleteBehavior.Cascade);
@@ -63,12 +63,12 @@ namespace Server.Server.Infrastructure
         public DbSet<Artisans> Artisans { get; set; }
 
         public DbSet<Resource> Resource { get; set; }
-        public DbSet<ResourceData> ResourceData { get; set; }
+        public DbSet<SupplyToDemandRatio> ResourceData { get; set; }
         public DbSet<Resources> Resources { get; set; }
         public DbSet<TradingResource> TradingResource { get; set; }
         public DbSet<TradingResources> TradingResources { get; set; }
         public DbSet<ExternalTradingResources> ExternalTradingResources { get; set; }
-        public DbSet<ExternatlTradingResource> ExternatlTradingResource { get; set; }
+        public DbSet<ExternalTradingResource> ExternatlTradingResource { get; set; }
 
         public DbSet<Contry> Contry { get; set; }
         public DbSet<Region> Region { get; set; }

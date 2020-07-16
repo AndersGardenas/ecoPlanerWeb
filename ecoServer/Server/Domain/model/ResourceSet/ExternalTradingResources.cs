@@ -6,7 +6,7 @@ namespace econoomic_planer_X.ResourceSet
     {
         public int ID { get; set; }
 
-        public virtual List<ExternatlTradingResource> TradingResourceList { get; set; }
+        public virtual List<ExternalTradingResource> TradingResourceList { get; set; }
 
         public ExternalTradingResources()
         {
@@ -14,7 +14,7 @@ namespace econoomic_planer_X.ResourceSet
 
         public ExternalTradingResources Init()
         {
-            TradingResourceList = new List<ExternatlTradingResource>();
+            TradingResourceList = new List<ExternalTradingResource>();
             return this;
         }
 
@@ -23,14 +23,14 @@ namespace econoomic_planer_X.ResourceSet
             return TradingResourceList.Count;
         }
 
-        internal void Add(ExternatlTradingResource tradingResounce)
+        internal void Add(ExternalTradingResource tradingResounce)
         {
             TradingResourceList.Add(tradingResounce);
         }
 
-        internal void Add(List<ExternatlTradingResource> tradingResounces)
+        internal void Add(List<ExternalTradingResource> tradingResounces)
         {
-            foreach (ExternatlTradingResource tr in tradingResounces)
+            foreach (ExternalTradingResource tr in tradingResounces)
             {
                 TradingResourceList.Add(tr);
             }

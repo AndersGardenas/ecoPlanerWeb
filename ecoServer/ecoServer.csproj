@@ -31,11 +31,11 @@
 
   <ItemGroup>
     <Reference Include="PresentationCore">
-      <HintPath>C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.1\PresentationCore.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.5\PresentationCore.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase">
-      <HintPath>C:\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.1\WindowsBase.dll</HintPath>
-    </Reference>    
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\shared\Microsoft.WindowsDesktop.App\3.1.5\WindowsBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

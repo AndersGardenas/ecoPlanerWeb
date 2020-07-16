@@ -25,10 +25,10 @@ namespace ecoServer.Server.Domain.Services.EntitServices
         }
 
 
-        public List<TradingResource> GetExternalResourcesForContry(List<Population> populations)
+        public List<ExternalTradingResource> GetExternalResourcesForContry(List<Population> populations)
         {
 
-            IQueryable<TradingResource> tr = Context.TradingResource.Where(t => t.ExternalTradingResourcesID != null && populations.Contains(t.Owner));
+            IQueryable<ExternalTradingResource> tr = Context.ExternatlTradingResource.Where(t => t.Destination != null && populations.Contains(t.Owner));
 
             return tr.ToList();
         }

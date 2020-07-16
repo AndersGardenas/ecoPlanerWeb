@@ -12,7 +12,7 @@ namespace Server.Server.Domain.model.ResourceSet
 
         [ForeignKey("ExternatlTradingResource")]
         public int ExternatlTradingResourceId { get; set; }
-        public virtual ExternatlTradingResource ExternatlTradingResource { get; set; }
+        public virtual ExternalTradingResource ExternatlTradingResource { get; set; }
 
         public Destination() { }
         public Destination(ExternalMarket destination, double daysRemaning)

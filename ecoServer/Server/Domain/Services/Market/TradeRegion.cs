@@ -12,7 +12,7 @@ namespace ecoServer.Server.Domain.Services.Market
         public int ResourcesId { get; set; }
         public virtual Resources transportAmount { get; set; }
         private readonly double tradeChange = 0.01;
-        private float maxExport = 0.5f;
+        private float maxExport = 1f;
 
         public TradeRegion() { }
 

@@ -163,7 +163,6 @@ export default class App extends Component {
                             url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
                             noWrap='false' />
 
-                        <Polyline positions={this.state.arrowMap} arrowheads={{ size: arrowSize, frequency: arrowDist }} />
                         {this.renderCountries(geojson)}
                     </Map>
                 </div>
@@ -171,10 +170,7 @@ export default class App extends Component {
         );
     }
 }
-
-  //                     
-//
-//{ this.renderCountries(geojson) }
+//                        <Polyline positions={this.state.arrowMap} arrowheads={{ size: arrowSize, frequency: arrowDist }} />
 
 
 

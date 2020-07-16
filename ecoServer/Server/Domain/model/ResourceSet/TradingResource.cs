@@ -29,18 +29,18 @@ namespace econoomic_planer_X.ResourceSet
             this.Owner = Owner;
         }
 
-        public ExternatlTradingResource SplitExternal(double ratio, ExternalMarket destination, double localTravelTime)
+        public ExternalTradingResource SplitExternal(double ratio, ExternalMarket destination, double localTravelTime)
         {
             double splitAmount = Amount * ratio;
             Amount -= splitAmount;
-            return new ExternatlTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
+            return new ExternalTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
         }
 
-        public ExternatlTradingResource SplitAmountExternal(double amount, ExternalMarket destination, double localTravelTime)
+        public ExternalTradingResource SplitAmountExternal(double amount, ExternalMarket destination, double localTravelTime)
         {
             double splitAmount = amount;
             Amount -= splitAmount;
-            return new ExternatlTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
+            return new ExternalTradingResource(Owner, ResourceType, splitAmount).Init(destination, localTravelTime);
         }
 
         public bool AffordTransport(double tradeRegionRatio, double amount)

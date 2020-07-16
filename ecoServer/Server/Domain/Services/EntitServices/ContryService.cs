@@ -82,13 +82,13 @@ namespace ecoServer.Server.Domain.Services
 
         public ICollection<Region> GetTradingPartners(IQueryable<Population> populations)
         {
-            IQueryable<ExternatlTradingResource> tr = Context.ExternatlTradingResource.Where(t => populations.Contains(t.Owner));
+            IQueryable<ExternalTradingResource> tr = Context.ExternatlTradingResource.Where(t => populations.Contains(t.Owner));
             if (tr.Count() == 0)
             {
                 return null;
             }
             List<ExternalMarket> market = new List<ExternalMarket>();
-            foreach (ExternatlTradingResource resource in tr)
+            foreach (ExternalTradingResource resource in tr)
             {
                 if (resource?.Destination?.MarketDestination != null)
                 {
@@ -101,6 +101,17 @@ namespace ecoServer.Server.Domain.Services
                 return null;
             }
             return regions.ToList();
+        }
+
+        public Contry GetContry(int ExternalMarketId)
+        {
+            var Region = Context.Region.FirstOrDefault(r => r.ExternalMarket.Id == ExternalMarketId);
+            if (Region == null)
+            {
+                return null;
+            }
+            var contry = Context.Contry.FirstOrDefault(c => c.ID == Region.ContryID);
+            return contry;
         }
     }
 }

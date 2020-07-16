@@ -8,7 +8,7 @@ namespace econoomic_planer_X.Market
 {
     public class ExternalMarket
     {
-        private double externalTreshold = 1.5;
+        private double externalTreshold = 2;
 
         public int Id { get; set; }
         [ForeignKey("ExternalMarketRegion")]
@@ -47,7 +47,7 @@ namespace econoomic_planer_X.Market
 
         public void UpdateTrade(List<ExternalTradingResources> TradingResources)
         {
-            foreach (ExternatlTradingResource tradingResounce in ExternatlTradingResourcesInTransit.TradingResourceList)
+            foreach (ExternalTradingResource tradingResounce in ExternatlTradingResourcesInTransit.TradingResourceList)
             {
                 tradingResounce.TransportADay();
                 if (tradingResounce.AtDestination())
@@ -116,13 +116,14 @@ namespace econoomic_planer_X.Market
             }
         }
 
-        public void ComputeExternalTrade(ExternalTradingResources externalTradingResources, ResourceTypes.ResourceType resourceType, double resourceRatio, InternalMarket internalMarket)
+        public void ComputeExternalTrade(ExternalTradingResources externalTradingResources, double demand, ResourceTypes.ResourceType resourceType,
+            double resourceRatio, InternalMarket internalMarket)
         {
             double externalPrice = GetBestCost(resourceType, out TradeRegion destination, out TradeRegion worstTradeRegion);
-
-            double priceRatio = externalPrice / internalMarket.GetResourceData(resourceType).ResourcesPrice;
-            DoExternalTradeWithExternalResources(priceRatio, externalTradingResources, destination);
             IncreaseTradeWith(resourceType, destination, worstTradeRegion);
+
+            double priceRatio = externalPrice / internalMarket.GetSupplyToDemandRatio(resourceType).ResourcesPrice;
+            DoExternalTradeWithExternalResources(priceRatio, demand, externalTradingResources, resourceType);
 
             if (priceRatio <= 1.05)
             {
@@ -132,26 +133,56 @@ namespace econoomic_planer_X.Market
         }
 
 
-        private void DoExternalTradeWithExternalResources(double priceRatio, ExternalTradingResources externalTradingResources, TradeRegion targetTradeRegion)
+        private void DoExternalTradeWithExternalResources(double priceRatio, double demand, ExternalTradingResources externalTradingResources, ResourceTypes.ResourceType resourceType)
         {
-            if (externalTradingResources.TradingResourceList.Count == 0)
+            double amountOfResources = externalTradingResources.TradingResourceList.Count;
+            if (amountOfResources == 0)
             {
                 return;
             }
             double transportTimeOutOfRigion = Ownregion.GetTransportTime() / 2;
-            if (priceRatio >= externalTreshold)
+            double keepAmount = getSendRatio(demand, priceRatio);
+            if (keepAmount >= amountOfResources)
             {
-                externalTradingResources.TradingResourceList.ForEach(tr => tr.UpdateDestination(targetTradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
-                ExternatlTradingResourcesInTransit.Add(externalTradingResources.TradingResourceList);
-                externalTradingResources.TradingResourceList.Clear();
+                return;
+            }
+            double exportRatio = (amountOfResources - keepAmount) / amountOfResources;
+            foreach (ExternalTradingResource externalTradingResource in externalTradingResources.TradingResourceList)
+            {
+                double totalSellAmount = externalTradingResource.Amount * exportRatio;
+
+                foreach (TradeRegion tradeRegion in TradeRegions)
+                {
+                    double tradeRegionRatio = tradeRegion.GetTransportAmount(resourceType);
+                    if (tradeRegionRatio <= 0)
+                    {
+                        continue;
+                    }
+
+                    if (externalTradingResource.AffordTransport(tradeRegionRatio, externalTradingResource.Amount))
+                    {
+                        ExternatlTradingResourcesInTransit.TradingResourceList.Add(externalTradingResource.SplitAmountExternal(totalSellAmount * tradeRegionRatio,
+                            tradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
+                    }
+                }
+
+            }
+
+        }
+
+        private double getSendRatio(double demand, double priceRatio)
+        {
+            if (priceRatio > externalTreshold)
+            {
+                return 0;
+            }
+            else if (priceRatio < 0.9)
+            {
+                return double.MaxValue;
             }
             else
             {
-                foreach (TradingResource tr in externalTradingResources.TradingResourceList)
-                {
-                    ExternatlTradingResourcesInTransit.TradingResourceList.Add(tr.SplitExternal(priceRatio / externalTreshold, targetTradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
-                }
-
+                return demand * (1 / priceRatio);
             }
         }
 
@@ -161,7 +192,7 @@ namespace econoomic_planer_X.Market
             {
                 return;
             }
-            double exportRatio = 1 - (1/ resourceRatio);
+            double exportRatio = 1 - (1 / resourceRatio);
             if (exportRatio <= 0)
             {
                 return;
@@ -170,7 +201,7 @@ namespace econoomic_planer_X.Market
             double transportTimeOutOfRigion = Ownregion.GetTransportTime() / 2;
             foreach (TradingResource tradingResounce in TradingResources)
             {
-                double totalSellAMount = tradingResounce.Amount * exportRatio;
+                double totalSellAmount = tradingResounce.Amount * exportRatio;
 
                 foreach (TradeRegion tradeRegion in TradeRegions)
                 {
@@ -182,20 +213,20 @@ namespace econoomic_planer_X.Market
 
                     if (tradingResounce.AffordTransport(tradeRegionRatio, tradingResounce.Amount))
                     {
-                        ExternatlTradingResourcesInTransit.TradingResourceList.Add(tradingResounce.SplitAmountExternal(totalSellAMount * tradeRegionRatio, tradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
+                        ExternatlTradingResourcesInTransit.TradingResourceList.Add(tradingResounce.SplitAmountExternal(totalSellAmount * tradeRegionRatio, tradeRegion.GetExternalMarket(), transportTimeOutOfRigion));
                     }
                 }
             }
         }
 
-        private void AddResource(ExternatlTradingResource tradingResounce)
+        private void AddResource(ExternalTradingResource tradingResounce)
         {
             NewExternatlTradingResources.TradingResourceList.Add(tradingResounce);
         }
 
         public void FinilizeTrades()
         {
-            foreach (ExternatlTradingResource newExternatlTradingResource in NewExternatlTradingResources.TradingResourceList)
+            foreach (ExternalTradingResource newExternatlTradingResource in NewExternatlTradingResources.TradingResourceList)
             {
                 newExternatlTradingResource.SetDaysRemaning(Ownregion.GetTransportTime() / 2);
                 ExternatlTradingResourcesInTransit.TradingResourceList.Add(newExternatlTradingResource);

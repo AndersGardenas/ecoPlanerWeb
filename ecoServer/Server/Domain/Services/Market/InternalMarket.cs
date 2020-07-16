@@ -16,7 +16,7 @@ namespace econoomic_planer_X.Market
         public virtual List<TradingResources> Supply { get; set; }
         [ForeignKey("ExternalSupply")]
         public virtual List<ExternalTradingResources> ExternalSupply { get; set; }
-        public virtual List<ResourceData> ResourceData { get; set; }
+        public virtual List<SupplyToDemandRatio> ResourceData { get; set; }
 
         [NotMapped]
         private readonly Resources Demand = new Resources().Init();
@@ -30,13 +30,13 @@ namespace econoomic_planer_X.Market
 
         public void Init()
         {
-            ResourceData = new List<ResourceData>();
+            ResourceData = new List<SupplyToDemandRatio>();
             Supply = new List<TradingResources>();
             ExternalSupply = new List<ExternalTradingResources>();
             int i = 0;
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
-                ResourceData.Add(new ResourceData(resourceType));
+                ResourceData.Add(new SupplyToDemandRatio(resourceType));
                 Supply.Add(new TradingResources(resourceType).Init());
                 ExternalSupply.Add(new ExternalTradingResources());
                 i++;
@@ -49,7 +49,7 @@ namespace econoomic_planer_X.Market
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
                 ComputeResourceRatio(resourceType);
-                externalMarket.ComputeExternalTrade(GetExternalSupply(resourceType), resourceType, GetResourceData(resourceType).GetResourceRatio(),  this);
+                externalMarket.ComputeExternalTrade(GetExternalSupply(resourceType), Demand.GetAmount(resourceType), resourceType, GetSupplyToDemandRatio(resourceType).GetSupplyToDemandRatio(), this);
             }
             externalMarket.UpdateTrade(ExternalSupply);
 
@@ -108,13 +108,10 @@ namespace econoomic_planer_X.Market
             supplyAmount += GetExternalSupply(resourceType).TradingResourceList.Sum(su => su.Amount);
             SupplySum[(int)resourceType].Amount = supplyAmount;
             double demandAmount = Demand.GetAmount(resourceType);
-            GetResourceData(resourceType).SetResourceRatio(ComputeResourceRatio(demandAmount, supplyAmount));
+            GetSupplyToDemandRatio(resourceType).SetSupplyToDemandRatio(GetSupplyToDemandRatio(resourceType).ComputeSupplyToDemandRatio(demandAmount, supplyAmount));
         }
 
-        private double ComputeResourceRatio(double demandAmount, double supplyAmount)
-        {
-            return demandAmount > 0 ? supplyAmount / demandAmount : double.MaxValue;
-        }
+
 
         public void DoTrade(List<Population> populations)
         {
@@ -126,17 +123,17 @@ namespace econoomic_planer_X.Market
                     return;
                 }
 
-                var resoucreData = GetResourceData(resourceType);
-                var resourceRatio = resoucreData.GetResourceRatio();
+                var resoucreData = GetSupplyToDemandRatio(resourceType);
+                var resourceRatio = resoucreData.GetSupplyToDemandRatio();
                 double price = resoucreData.ResourcesPrice;
 
                 var supply = GetSupply(resourceType);
 
                 var exportSupply = GetExternalSupply(resourceType);
 
-                double sellRatio = Math.Min(1, 1 / ComputeResourceRatio(demmand, SupplySum[(int)resourceType].Amount));
+                double sellRatio = Math.Min(1, 1 / GetSupplyToDemandRatio(resourceType).ComputeSupplyToDemandRatio(demmand, SupplySum[(int)resourceType].Amount));
                 demmand = AutoTrade(resourceType);
-                double newBuyRatio = Math.Min(1, ComputeResourceRatio(demmand, SupplySum[(int)resourceType].Amount));
+                double newBuyRatio = Math.Min(1, GetSupplyToDemandRatio(resourceType).ComputeSupplyToDemandRatio(demmand, SupplySum[(int)resourceType].Amount));
 
                 foreach (Population pop in populations)
                 {
@@ -155,17 +152,18 @@ namespace econoomic_planer_X.Market
         {
             var supply = GetSupply(resourceType);
             var externalSupply = GetExternalSupply(resourceType);
-            var resoucreData = GetResourceData(resourceType);
+            var resoucreData = GetSupplyToDemandRatio(resourceType);
             double price = resoucreData.ResourcesPrice;
 
             double demmand = Demand.GetAmount(resourceType);
             double initialDemand = demmand;
             foreach (TradingResource tr in supply.TradingResourceList)
             {
-                if (demmand < (initialDemand * 0.01)){
+                if (demmand < (initialDemand * 0.01))
+                {
                     break;
                 }
-                else if(tr.Amount < (initialDemand * 0.01))
+                else if (tr.Amount < (initialDemand * 0.01))
                 {
                     demmand -= tr.Amount;
                     SupplySum[(int)resourceType].Amount -= tr.Amount;
@@ -179,7 +177,8 @@ namespace econoomic_planer_X.Market
 
             foreach (TradingResource tr in externalSupply.TradingResourceList)
             {
-                if (demmand < (initialDemand * 0.01)){
+                if (demmand < (initialDemand * 0.01))
+                {
                     break;
                 }
                 else if (tr.Amount < (initialDemand * 0.01))
@@ -203,13 +202,14 @@ namespace econoomic_planer_X.Market
         {
             foreach (ResourceTypes.ResourceType resourceType in ResourceTypes.GetIterator())
             {
-                GetResourceData(resourceType).ResourcesPrice = GetNewPrice(resourceType);
+                GetSupplyToDemandRatio(resourceType).ResourcesPrice = GetNewPrice(resourceType);
             }
         }
 
         private double GetNewPrice(ResourceTypes.ResourceType resourceType)
         {
-            return Math.Max(0.000001, Math.Min(1000000, GetResourceData(resourceType).ResourcesPrice * (1 + Math.Max(Math.Min(1 / GetResourceData(resourceType).GetResourceRatio() - 1, PriceSlownes), -PriceSlownes) / 100)));
+            return Math.Max(0.000001, Math.Min(1000000, GetSupplyToDemandRatio(resourceType).ResourcesPrice *
+                (1 + Math.Max(Math.Min((1 / GetSupplyToDemandRatio(resourceType).GetSupplyToDemandRatio() -1), PriceSlownes), -1 + (1/PriceSlownes))/100)));
         }
 
         public void UpdateMarket(List<Population> populations)
@@ -244,7 +244,7 @@ namespace econoomic_planer_X.Market
 
         public double GetPrice(ResourceTypes.ResourceType resourceType, double amount)
         {
-            return GetResourceData(resourceType).ResourcesPrice * amount;
+            return GetSupplyToDemandRatio(resourceType).ResourcesPrice * amount;
         }
 
 
@@ -276,7 +276,7 @@ namespace econoomic_planer_X.Market
             return ExternalSupply[(int)resourceType];
         }
 
-        public ResourceData GetResourceData(ResourceTypes.ResourceType resourceType)
+        public SupplyToDemandRatio GetSupplyToDemandRatio(ResourceTypes.ResourceType resourceType)
         {
             return ResourceData[(int)resourceType];
         }
