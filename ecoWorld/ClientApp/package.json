@@ -35,5 +35,11 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "name": "clientapp",
+  "main": "bundle.js",
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
